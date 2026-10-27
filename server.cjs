@@ -4,6 +4,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
 
+const OFFICIAL_ORIGIN = 'https://motorize.agenciatupiniquim.com.br';
+
 const hash = (value) => crypto.createHash('sha256').update(value).digest('hex');
 function passwordHash(password, salt = crypto.randomBytes(16).toString('hex')) {
   return { salt, hash: crypto.scryptSync(password, salt, 64).toString('hex') };
@@ -68,6 +70,13 @@ function cleanLead(raw, complete) {
 function createApp({ dataDir = process.env.DATA_DIR || path.join(__dirname, 'data'), publicOrigin = process.env.PUBLIC_ORIGIN || '' } = {}) {
   const db = openDB(dataDir);
   const configuredOrigin = publicOrigin ? new URL(publicOrigin).origin : '';
+  // Keep the official domain usable when an old deployment variable still
+  // points at SiteGround's temporary hostname. Never trust forwarded headers.
+  const originsByHost = new Map();
+  if (configuredOrigin && !new URL(configuredOrigin).hostname.endsWith('.sg-host.com')) {
+    originsByHost.set(new URL(configuredOrigin).host, configuredOrigin);
+  }
+  originsByHost.set(new URL(OFFICIAL_ORIGIN).host, OFFICIAL_ORIGIN);
   const root = path.join(__dirname, 'dist');
   const limits = new Map();
   function limited(key, max, milliseconds) {
@@ -86,15 +95,17 @@ function createApp({ dataDir = process.env.DATA_DIR || path.join(__dirname, 'dat
     res.setHeader('Referrer-Policy', 'same-origin');
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('X-Motorize-API-Version', '2026-10-27-domain-fix');
     const send = (status, value) => {
       res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(value));
     };
     try {
       const port = server.address().port;
-      const allowedHosts = configuredOrigin ? [new URL(configuredOrigin).host] : [`127.0.0.1:${port}`, `localhost:${port}`];
-      if (!allowedHosts.includes(req.headers.host)) return send(403, { error: 'Host não autorizado.' });
-      const base = configuredOrigin || `http://${req.headers.host}`;
+      const localHosts = [`127.0.0.1:${port}`, `localhost:${port}`];
+      const base = originsByHost.get(req.headers.host)
+        || (!configuredOrigin && localHosts.includes(req.headers.host) ? `http://${req.headers.host}` : '');
+      if (!base) return send(403, { error: 'Host não autorizado.' });
       const url = new URL(req.url, base);
       const route = url.pathname;
       const origin = req.headers.origin;
@@ -122,7 +133,7 @@ function createApp({ dataDir = process.env.DATA_DIR || path.join(__dirname, 'dat
         const token = crypto.randomBytes(32).toString('hex');
         db.prepare('DELETE FROM sessions WHERE expires<?').run(Date.now());
         db.prepare('INSERT INTO sessions VALUES(?,?,?)').run(hash(token), user.username, Date.now() + 8 * 3600e3);
-        res.setHeader('Set-Cookie', `motorize_admin=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800${configuredOrigin.startsWith('https://') || req.socket.encrypted ? '; Secure' : ''}`);
+        res.setHeader('Set-Cookie', `motorize_admin=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=28800${base.startsWith('https://') || req.socket.encrypted ? '; Secure' : ''}`);
         return send(200, { ok: true });
       }
 

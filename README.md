@@ -49,6 +49,12 @@ O envio ao GitHub verifica o código. A atualização do site exige os comandos 
 
 ## Dados e acesso
 
+O domínio oficial é `https://motorize.agenciatupiniquim.com.br`. O servidor aceita esse host explicitamente, mesmo que `PUBLIC_ORIGIN` ainda contenha um endereço provisório `.sg-host.com`. Hosts provisórios não são autorizados pela API. A proteção de origem continua ativa e as sessões HTTPS usam cookies Secure, HttpOnly e restritos ao host atual.
+
+Ao mudar de domínio, atualize também as variáveis da hospedagem: `DOMAIN=motorize.agenciatupiniquim.com.br` (Docker) e/ou `PUBLIC_ORIGIN=https://motorize.agenciatupiniquim.com.br` (Node direto), sem modificar `DATA_DIR`. Reinicie a aplicação após atualizar o código. A simples cópia do HTML não reinicia o servidor Node.
+
+O painel e a captura usam `/api/...` no mesmo domínio da página. Não configure a API com o endereço provisório. Após a publicação, uma consulta sem sessão a `/api/admin/dashboard?days=30` deve retornar 401 com pedido de login, nunca 403 de host. A resposta da versão corrigida inclui `X-Motorize-API-Version: 2026-10-27-domain-fix`.
+
 Senhas, sessões, banco e leads não devem ser enviados ao GitHub. O `.gitignore` exclui esses arquivos. Somente `.env.example`, sem credenciais, é versionado.
 
 Não use `docker compose down -v`, pois remove os volumes. Faça backup regular do banco conforme o manual.

@@ -5,6 +5,25 @@ const os = require('node:os');
 const path = require('node:path');
 const { createApp, passwordHash } = require('./server.cjs');
 
+function requestWithHost(url, options = {}) {
+  return new Promise((resolve, reject) => {
+    const req = require('node:http').request(url, { method: options.method || 'GET', headers: options.headers }, (res) => {
+      const chunks = [];
+      res.on('data', (chunk) => chunks.push(chunk));
+      res.on('end', () => {
+        const headers = new Headers();
+        for (const [key, value] of Object.entries(res.headers)) {
+          for (const entry of Array.isArray(value) ? value : [value]) if (entry !== undefined) headers.append(key, entry);
+        }
+        resolve(new Response(Buffer.concat(chunks), { status: res.statusCode, headers }));
+      });
+      res.on('error', reject);
+    });
+    req.on('error', reject);
+    req.end(options.body);
+  });
+}
+
 test('registra, qualifica e lista um lead com autenticação', async (t) => {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'motorize-test-'));
   const { server, db } = createApp({ dataDir });
@@ -97,3 +116,41 @@ test('domínio público, cookie seguro e arquivos de migração', async (t) => {
   assert.equal((await fetch(base + '/api/admin/logout', { method: 'POST', headers: authHeaders, body: '{}' })).status, 200);
   assert.equal((await fetch(base + '/api/admin/dashboard', { headers: authHeaders })).status, 401);
 });
+
+for (const previousOrigin of ['', 'https://rodrigoo45.sg-host.com']) {
+  test(`domínio oficial funciona com PUBLIC_ORIGIN ${previousOrigin || 'ausente'}`, async (t) => {
+    const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'motorize-domain-test-'));
+    const { server, db } = createApp({ dataDir, publicOrigin: previousOrigin });
+    const credentials = passwordHash('senha-apenas-do-teste');
+    db.prepare('INSERT INTO admins VALUES(?,?,?)').run('teste', credentials.salt, credentials.hash);
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+    t.after(() => new Promise((resolve) => server.close(() => {
+      fs.rmSync(dataDir, { recursive: true, force: true });
+      resolve();
+    })));
+    const url = `http://127.0.0.1:${server.address().port}`;
+    const official = 'https://motorize.agenciatupiniquim.com.br';
+    const headers = { Host: 'motorize.agenciatupiniquim.com.br', Origin: official, 'Content-Type': 'application/json' };
+    const body = JSON.stringify({ username: 'teste', password: 'senha-apenas-do-teste' });
+    let response = await requestWithHost(url + '/api/admin/dashboard', { headers });
+    assert.equal(response.status, 401, 'sem sessão pede autenticação, não rejeita o domínio');
+    response = await requestWithHost(url + '/api/admin/login', { method: 'POST', headers: { ...headers, Origin: 'https://rodrigoo45.sg-host.com' }, body });
+    assert.equal(response.status, 403, 'origem provisória não pode autenticar no domínio oficial');
+    response = await requestWithHost(url + '/api/admin/login', { method: 'POST', headers: { ...headers, 'Sec-Fetch-Site': 'cross-site' }, body });
+    assert.equal(response.status, 403);
+    response = await requestWithHost(url + '/api/admin/dashboard', { headers: { ...headers, Host: 'invasor.example', 'X-Forwarded-Host': headers.Host } });
+    assert.equal(response.status, 403, 'cabeçalho encaminhado não libera um host desconhecido');
+    response = await requestWithHost(url + '/api/admin/dashboard', { headers: { ...headers, Host: 'rodrigoo45.sg-host.com' } });
+    assert.equal(response.status, 403, 'host provisório foi aposentado');
+    response = await requestWithHost(url + '/api/admin/login', { method: 'POST', headers, body });
+    assert.equal(response.status, 200);
+    const cookie = response.headers.get('set-cookie');
+    assert.match(cookie, /; Secure/);
+    assert.match(cookie, /; HttpOnly/);
+    assert.doesNotMatch(cookie, /Domain=/i, 'a sessão pertence somente ao host atual');
+    const authenticated = { ...headers, Cookie: cookie.split(';')[0] };
+    response = await requestWithHost(url + '/api/admin/dashboard', { headers: authenticated });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('x-motorize-api-version'), '2026-10-27-domain-fix');
+  });
+}
