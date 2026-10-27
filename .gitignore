@@ -1,0 +1,19 @@
+# Dados e credenciais ficam somente na hospedagem.
+.env
+.env.*
+!.env.example
+data/
+backup*/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
+*.pem
+*.key
+node_modules/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+
+# dist/ contém os arquivos-fonte estáticos e deve ser versionada.

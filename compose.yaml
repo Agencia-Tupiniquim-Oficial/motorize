@@ -1,0 +1,28 @@
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    environment:
+      PUBLIC_ORIGIN: https://${DOMAIN:?Defina DOMAIN no arquivo .env}
+      MOTORIZE_ADMIN_USER: ${MOTORIZE_ADMIN_USER:-admin.motorize}
+    volumes:
+      - motorize_data:/app/data
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - web
+    environment:
+      DOMAIN: ${DOMAIN:?Defina DOMAIN no arquivo .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+volumes:
+  motorize_data:
+  caddy_data:
+  caddy_config:
