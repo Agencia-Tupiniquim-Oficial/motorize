@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d1b2a">
+  <meta name="description" content="Marketing especializado para concessionárias que querem transformar presença digital em visitas, oportunidades e vendas.">
+  <title>Motorize+ | Marketing para concessionárias</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+  <header class="site-header" id="cabecalho">
+    <div class="shell nav-wrap">
+      <a class="brand" href="#inicio" aria-label="Motorize+, início">motorize<span>+</span></a>
+      <nav aria-label="Navegação principal">
+        <a href="#metodo">Método</a>
+        <a href="#solucoes">Soluções</a>
+        <a href="#especialistas">Especialistas</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a class="button button-small button-gold" href="#diagnostico">Quero vender mais <span aria-hidden="true">↗</span></a>
+      <button class="menu-button" type="button" aria-expanded="false" aria-label="Abrir menu"><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section class="hero" id="inicio">
+      <div class="hero-photo" role="img" aria-label="Concessionária contemporânea com veículos em exposição"></div>
+      <div class="hero-shade"></div>
+      <div class="shell hero-grid">
+        <div class="hero-copy reveal">
+          <span class="eyebrow eyebrow-light"><i></i> Performance para concessionárias</span>
+          <h1>Marketing que leva mais clientes ao <em>showroom.</em></h1>
+          <p>Campanhas, conteúdo e tecnologia para gerar oportunidades qualificadas e acelerar vendas.</p>
+          <div class="hero-actions">
+            <a class="button button-gold" href="#diagnostico">Quero um diagnóstico <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lead-section" id="diagnostico">
+      <div class="lead-plus-cluster" aria-hidden="true">
+        <i class="brand-plus"></i><i class="brand-plus"></i><i class="brand-plus"></i><i class="brand-plus"></i>
+        <i class="brand-plus"></i><i class="brand-plus"></i><i class="brand-plus"></i><i class="brand-plus"></i>
+        <i class="brand-plus"></i><i class="brand-plus"></i><i class="brand-plus"></i><i class="brand-plus"></i>
+        <i class="brand-plus"></i><i class="brand-plus"></i>
+      </div>
+      <div class="shell lead-grid">
+        <div class="lead-copy reveal">
+          <span class="eyebrow eyebrow-light"><i></i> Diagnóstico inicial gratuito</span>
+          <h2>Descubra onde sua operação pode gerar <em>mais vendas.</em></h2>
+          <p>Faça uma qualificação B2B rápida. No final, organizamos as informações para um especialista entender o porte, a prioridade e o momento da sua operação.</p>
+          <ul class="lead-benefits" aria-label="Benefícios do diagnóstico">
+            <li><span>01</span><div><strong>Leitura do seu momento</strong><small>Entendemos estrutura, investimento e principal desafio.</small></div></li>
+            <li><span>02</span><div><strong>Conversa mais objetiva</strong><small>O especialista já recebe o contexto antes do primeiro contato.</small></div></li>
+            <li><span>03</span><div><strong>Sem compromisso</strong><small>Você decide se faz sentido avançar depois da análise.</small></div></li>
+          </ul>
+        </div>
+
+        <form class="lead-form reveal" id="lead-form" novalidate>
+          <div class="form-progress-row">
+            <span id="form-progress">Etapa 1 de 5</span>
+            <div class="form-progress-track" aria-hidden="true"><i id="form-progress-bar"></i></div>
+          </div>
+          <div class="form-heading">
+            <span>RAIO-X DA OPERAÇÃO</span>
+            <h3 id="form-title">Vamos começar por você</h3>
+            <p id="form-intro">Como podemos chamar você e por onde seguimos a conversa?</p>
+          </div>
+
+          <div class="form-panel" data-form-step="contact">
+            <label for="lead-name">Seu nome</label>
+            <input id="lead-name" name="name" type="text" autocomplete="name" placeholder="Como você prefere ser chamado?" required>
+            <label for="lead-email">E-mail corporativo</label>
+            <input id="lead-email" name="email" type="email" autocomplete="email" placeholder="voce@empresa.com.br" required>
+            <label for="lead-phone">WhatsApp</label>
+            <input id="lead-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(11) 99999-9999" required>
+          </div>
+
+          <div class="form-panel" data-form-step="business" hidden>
+            <label for="lead-company">Concessionária ou grupo</label>
+            <input id="lead-company" name="company" type="text" autocomplete="organization" placeholder="Nome da empresa" required>
+            <label for="lead-role">Seu cargo</label>
+            <select id="lead-role" name="role" required>
+              <option value="">Selecione seu cargo</option>
+              <option>Proprietário(a) / Sócio(a)</option>
+              <option>Diretor(a)</option>
+              <option>Gerente de marketing</option>
+              <option>Gerente comercial</option>
+              <option>Analista / Coordenador(a)</option>
+              <option>Outro</option>
+            </select>
+            <label for="lead-city">Cidade e estado</label>
+            <input id="lead-city" name="city" type="text" autocomplete="address-level2" placeholder="Ex.: Campinas, SP" required>
+          </div>
+
+          <fieldset class="form-panel" data-form-step="profile" hidden>
+            <legend>Qual é o porte da operação?</legend>
+            <div class="choice-grid">
+              <label><input type="radio" name="stores" value="1 loja" required><span>1 loja</span></label>
+              <label><input type="radio" name="stores" value="2 a 5 lojas"><span>2 a 5 lojas</span></label>
+              <label><input type="radio" name="stores" value="6 a 15 lojas"><span>6 a 15 lojas</span></label>
+              <label><input type="radio" name="stores" value="16 ou mais lojas"><span>16 ou mais lojas</span></label>
+            </div>
+            <legend class="secondary-legend">Investimento mensal em mídia</legend>
+            <div class="choice-grid">
+              <label><input type="radio" name="budget" value="Até R$ 10 mil" required><span>Até R$ 10 mil</span></label>
+              <label><input type="radio" name="budget" value="R$ 10 mil a R$ 30 mil"><span>R$ 10 mil a R$ 30 mil</span></label>
+              <label><input type="radio" name="budget" value="R$ 30 mil a R$ 80 mil"><span>R$ 30 mil a R$ 80 mil</span></label>
+              <label><input type="radio" name="budget" value="Acima de R$ 80 mil"><span>Acima de R$ 80 mil</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-panel" data-form-step="goal" hidden>
+            <legend>Qual é a prioridade de negócio?</legend>
+            <div class="choice-grid">
+              <label><input type="radio" name="challenge" value="Gerar mais leads qualificados" required><span>Gerar leads qualificados</span></label>
+              <label><input type="radio" name="challenge" value="Vender veículos parados no estoque"><span>Girar estoque parado</span></label>
+              <label><input type="radio" name="challenge" value="Melhorar conversão e atendimento"><span>Melhorar conversão</span></label>
+              <label><input type="radio" name="challenge" value="Fortalecer marca e presença digital"><span>Fortalecer a marca</span></label>
+            </div>
+            <legend class="secondary-legend">Quando pretende iniciar?</legend>
+            <div class="choice-grid choice-grid-three">
+              <label><input type="radio" name="timeline" value="Imediatamente" required><span>Imediatamente</span></label>
+              <label><input type="radio" name="timeline" value="Nos próximos 30 dias"><span>Em até 30 dias</span></label>
+              <label><input type="radio" name="timeline" value="Em 2 a 3 meses"><span>Em 2 a 3 meses</span></label>
+            </div>
+            <label for="lead-details">Contexto adicional <small>(opcional)</small></label>
+            <textarea id="lead-details" name="details" rows="3" placeholder="Meta, marcas representadas ou dificuldade atual."></textarea>
+          </fieldset>
+
+          <div class="form-panel form-review" data-form-step="review" hidden>
+            <div class="review-check" aria-hidden="true">✓</div>
+            <h4>Tudo pronto para a primeira conversa.</h4>
+            <p>Revise os dados abaixo. Nada será enviado automaticamente.</p>
+            <dl id="lead-summary"></dl>
+            <a class="button button-gold form-whatsapp" id="lead-whatsapp" href="#" target="_blank" rel="noopener">Continuar no WhatsApp <span aria-hidden="true">↗</span></a>
+          </div>
+
+          <div class="form-navigation">
+            <button class="form-back" id="form-back" type="button" hidden>← Voltar</button>
+            <button class="button button-gold" id="form-next" type="button">Continuar <span aria-hidden="true">→</span></button>
+          </div>
+          <p class="save-notice" id="form-save-status" role="status"></p>
+          <p class="form-privacy">Ao continuar, você concorda em conversar com nossa equipe. Usaremos seus dados apenas para esta conversa comercial; eles não serão publicados.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="signal-bar" aria-label="Principais frentes de atuação">
+      <div class="marquee">
+        <div class="marquee-track">
+          <div class="marquee-group">
+            <span>Busca com intenção</span><i class="brand-plus brand-plus-small" aria-hidden="true"></i><span>Ofertas que despertam desejo</span><i class="brand-plus brand-plus-small" aria-hidden="true"></i><span>Leads com contexto</span><i class="brand-plus brand-plus-small" aria-hidden="true"></i><span>Mais visitas ao showroom</span><i class="brand-plus brand-plus-small" aria-hidden="true"></i>
+          </div>
+          <div class="marquee-group" aria-hidden="true">
+            <span>Busca com intenção</span><i class="brand-plus brand-plus-small" aria-hidden="true"></i><span>Ofertas que despertam desejo</span><i class="brand-plus brand-plus-small" aria-hidden="true"></i><span>Leads com contexto</span><i class="brand-plus brand-plus-small" aria-hidden="true"></i><span>Mais visitas ao showroom</span><i class="brand-plus brand-plus-small" aria-hidden="true"></i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section services" id="solucoes">
+      <div class="shell">
+        <div class="section-heading row-heading reveal">
+          <div><span class="eyebrow"><i></i> Uma operação, não ações soltas</span><h2>Quatro frentes. Um único caminho <em>até a venda.</em></h2></div>
+          <p>Conectamos estoque, comunicação e atendimento para transformar intenção de compra em uma oportunidade pronta para o comercial.</p>
+        </div>
+        <div class="operation-board reveal">
+          <div class="operation-flow" aria-label="Jornada integrada da operação">
+            <span><small>PONTO DE PARTIDA</small><strong>Estoque e meta comercial</strong></span>
+            <i aria-hidden="true"></i>
+            <span><small>OPERAÇÃO MOTORIZE+</small><strong>Estratégia conectada</strong></span>
+            <i aria-hidden="true"></i>
+            <span><small>DESTINO</small><strong>Lead pronto para avançar</strong></span>
+          </div>
+          <div class="operation-pulse" aria-hidden="true"><b class="brand-plus brand-plus-small"></b></div>
+        </div>
+        <div class="operation-grid">
+          <article class="operation-card reveal">
+            <div class="operation-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48"><circle cx="20" cy="20" r="8.5"></circle><path d="m26.5 26.5 8.5 8.5"></path></svg>
+            </div>
+            <div class="operation-number">01 <span>ATRAÇÃO</span></div>
+            <h3><span>Aparecer para quem</span><span>já está buscando</span></h3>
+            <p>Mídia organizada por modelo, praça, estoque e intenção real de compra.</p>
+            <ul><li>Google &amp; Meta</li><li>Remarketing</li></ul>
+          </article>
+          <article class="operation-card reveal">
+            <div class="operation-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48"><path d="M10 28h28l-3-8.2a4.5 4.5 0 0 0-4.2-3H17.2a4.5 4.5 0 0 0-4.2 3L10 28Z"></path><path d="M8 28v6.5h5l2-3h18l2 3h5V28"></path><path d="M15 27h3M30 27h3"></path></svg>
+            </div>
+            <div class="operation-number">02 <span>DECISÃO</span></div>
+            <h3><span>Transformar estoque</span><span>em desejo</span></h3>
+            <p>Conteúdo e páginas que valorizam a oferta e ajudam o cliente a escolher.</p>
+            <ul><li>UX &amp; copy</li><li>Conteúdo</li></ul>
+          </article>
+          <article class="operation-card reveal">
+            <div class="operation-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48"><path d="M10 12h28v20H23l-8 6v-6h-5V12Z"></path><path d="m17 22 4 4 9-9"></path></svg>
+            </div>
+            <div class="operation-number">03 <span>CONVERSÃO</span></div>
+            <h3><span>Abrir conversas</span><span>sem atrito</span></h3>
+            <p>Uma jornada simples para o lead pedir atendimento no momento certo.</p>
+            <ul><li>Landing pages</li><li>WhatsApp</li></ul>
+          </article>
+          <article class="operation-card operation-card-dark reveal">
+            <div class="operation-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48"><path d="M11 34a13 13 0 0 1 26 0"></path><path d="m24 29 8-9"></path><circle cx="24" cy="34" r="2.5"></circle><path d="M14 25h3M31 25h3"></path></svg>
+            </div>
+            <div class="operation-number">04 <span>VELOCIDADE</span></div>
+            <h3><span>Entregar contexto</span><span>e acelerar vendas</span></h3>
+            <p>CRM, dados e acompanhamento para o vendedor priorizar as melhores oportunidades.</p>
+            <ul><li>Automação</li><li>Dashboards</li></ul>
+          </article>
+        </div>
+        <div class="operation-result reveal">
+          <div><span class="brand-plus brand-plus-small" aria-hidden="true"></span><p><small>O QUE MUDA NA PRÁTICA</small><strong>Marketing e vendas passam a trabalhar juntos, com o mesmo funil e a mesma prioridade comercial.</strong></p></div>
+          <a href="#diagnostico">Identificar meu principal gargalo <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section roadmap method-showroom" id="metodo">
+      <div class="method-photo" aria-hidden="true"></div>
+      <div class="method-shade" aria-hidden="true"></div>
+      <div class="shell method-layout">
+        <div class="method-intro reveal">
+          <span class="eyebrow eyebrow-light"><i></i> Nosso método</span>
+          <h2>Da leitura da operação ao próximo <em>resultado.</em></h2>
+          <p>Um ciclo claro para decidir melhor, executar com foco e evoluir com dados reais da concessionária.</p>
+          <a class="button button-outline" href="#diagnostico">Conhecer meu ponto de partida <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="method-steps" aria-label="Etapas do método Motorize+">
+          <article class="method-step reveal"><span>01</span><div><small>ENTENDER</small><h3>Raio-X comercial</h3><p>Mapeamos metas, estoque, mídia, jornada e atendimento para encontrar onde a demanda perde força.</p></div></article>
+          <article class="method-step reveal"><span>02</span><div><small>PRIORIZAR</small><h3>Plano de 90 dias</h3><p>Transformamos o diagnóstico em prioridades objetivas, com impacto mais próximo da operação.</p></div></article>
+          <article class="method-step reveal"><span>03</span><div><small>INTEGRAR</small><h3>Execução coordenada</h3><p>Mídia, criação, tecnologia e comercial avançam com o mesmo objetivo e a mesma leitura do funil.</p></div></article>
+          <article class="method-step reveal"><span>04</span><div><small>EVOLUIR</small><h3>Otimização contínua</h3><p>Acompanhamos a qualidade das conversas e das visitas para ajustar o que realmente move vendas.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section about-agency" id="especialistas">
+      <div class="shell about-grid">
+        <div class="about-visual reveal">
+          <img src="assets/strategy-showroom.png" alt="Especialistas analisando a estratégia de uma concessionária no showroom">
+          <div class="about-visual-note"><small>ESTRATÉGIA + EXECUÇÃO</small><strong>Uma equipe olhando para toda a jornada.</strong></div>
+        </div>
+        <div class="about-copy reveal">
+          <span class="eyebrow"><i></i> Sobre a Motorize+</span>
+          <h2>Especialização automotiva com visão de <em>negócio.</em></h2>
+          <p>Somos uma frente especializada da Agência Tupiniquim para concessionárias que querem aproximar marketing, atendimento e vendas.</p>
+          <p>Entramos na rotina da operação para entender o momento comercial, organizar prioridades e transformar ações isoladas em um processo mais claro de geração de oportunidades.</p>
+          <div class="about-points">
+            <span><b>+14 anos</b><small>de experiência em marketing digital</small></span>
+            <span><b>+32%</b><small>em oportunidades qualificadas</small></span>
+            <span><b>4,7×</b><small>de retorno médio sobre mídia</small></span>
+          </div>
+          <small class="about-data-note">Dados ilustrativos para apresentação. Substituir pelos resultados reais da operação.</small>
+          <a class="button button-gold" href="#diagnostico">Conversar com um especialista <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section faq" id="faq">
+      <div class="shell faq-grid">
+        <div class="faq-title reveal"><span class="eyebrow"><i></i> Perguntas frequentes</span><h2>O que você precisa saber antes da <em>primeira conversa.</em></h2><p>Sem pacote pronto: a recomendação começa pelo seu momento comercial.</p></div>
+        <div class="accordion">
+          <details class="reveal" open><summary>Por que escolher uma agência especialista em concessionárias?<span class="brand-plus faq-plus" aria-hidden="true"></span></summary><p>Porque o contexto já vem no ponto de partida. Isso reduz a curva de aprendizado e permite construir campanhas mais próximas da realidade de estoque, atendimento e vendas.</p></details>
+          <details class="reveal"><summary>Vocês atendem concessionárias de qualquer porte?<span class="brand-plus faq-plus" aria-hidden="true"></span></summary><p>A estratégia é dimensionada conforme o momento, a estrutura e os objetivos da operação — de grupos regionais a lojas independentes.</p></details>
+          <details class="reveal"><summary>Como marketing e equipe comercial trabalham juntos?<span class="brand-plus faq-plus" aria-hidden="true"></span></summary><p>Definimos critérios, jornada e indicadores em comum para que a oportunidade gerada tenha contexto e possa ser atendida com mais eficiência.</p></details>
+          <details class="reveal"><summary>É possível começar por uma frente específica?<span class="brand-plus faq-plus" aria-hidden="true"></span></summary><p>Sim. O diagnóstico ajuda a identificar o ponto de maior impacto e a organizar uma evolução coerente para as demais frentes.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta" id="contato">
+      <div class="cta-photo"></div>
+      <div class="cta-shade"></div>
+      <div class="shell cta-inner reveal">
+        <div class="cta-copy">
+          <span class="eyebrow eyebrow-light"><i></i> Próximo passo</span>
+          <h2>Sua próxima venda pode começar com uma <em>busca&nbsp;hoje.</em></h2>
+          <div class="cta-actions">
+            <a class="button button-gold" href="https://wa.me/551141687152?text=Ol%C3%A1%2C%20quero%20um%20diagn%C3%B3stico%20de%20marketing%20para%20minha%20concession%C3%A1ria." target="_blank" rel="noopener">Falar no WhatsApp <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="rodape">
+    <div class="shell footer-agency">
+      <div class="tupiniquim-brand" aria-label="Agência Tupiniquim">
+        <img class="tupiniquim-logo" src="assets/logo-agencia-tupiniquim.svg" alt="Agência Tupiniquim">
+      </div>
+      <div class="footer-about">
+        <p>A Tupiniquim existe porque acredita no potencial das empresas de impactar positivamente a vida das pessoas. Nós entendemos que as vendas são como o oxigênio para os negócios. Por isso, ao longo de mais de uma década, o nosso objetivo tem sido fortalecer negócios e pessoas.</p>
+        <p>Ensinando e ajudando na geração de resultados reais e no aumento de vendas através do marketing digital.</p>
+      </div>
+    </div>
+    <div class="shell footer-contact-row">
+      <div class="footer-info">
+        <p>Marketing especializado para concessionárias que querem vender mais.</p>
+        <a class="footer-phone" href="tel:+551141687152">(11) 4168-7152</a>
+      </div>
+      <a class="to-top" href="#inicio">Voltar ao topo ↑</a>
+    </div>
+    <div class="shell footer-bottom"><span>© 2026 Agência Tupiniquim. Todos os direitos reservados.</span><span>Estratégia, marketing e vendas para fortalecer negócios.</span></div>
+  </footer>
+
+  <button class="chat-launch whatsapp-launch" id="chat-launch" type="button" aria-haspopup="dialog" aria-controls="sales-chat">
+    <span class="chat-launch-icon whatsapp-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.208-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.876 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.262.489 1.693.625.712.227 1.36.195 1.871.118.57-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648a9.86 9.86 0 0 1-1.323-4.956c0-5.45 4.436-9.886 9.888-9.886 2.64 0 5.122 1.03 6.988 2.897a9.82 9.82 0 0 1 2.893 6.99c-.003 5.45-4.437 9.884-9.887 9.884m8.413-18.297A11.82 11.82 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.14 1.588 5.945L.057 24l6.3-1.654a11.88 11.88 0 0 0 5.693 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.483-8.413"></path></svg>
+      <b class="whatsapp-ai-badge">IA</b>
+    </span>
+    <span><strong>Vamos conversar?</strong><small>Resposta rápida no WhatsApp</small></span>
+  </button>
+
+  <dialog class="sales-chat" id="sales-chat" aria-labelledby="chat-title">
+    <div class="chat-header">
+      <div class="chat-avatar" aria-hidden="true">m<span>+</span></div>
+      <div><strong id="chat-title">Assistente Motorize+</strong><small><i></i> Online agora</small></div>
+      <button class="chat-close" id="chat-close" type="button" aria-label="Fechar conversa">×</button>
+    </div>
+    <div class="chat-progress"><span id="chat-progress-label">Etapa 1 de 9</span><div><i id="chat-progress-bar"></i></div></div>
+    <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+    <div class="chat-controls" id="chat-controls"></div>
+    <div class="chat-footer"><button id="chat-back" type="button" hidden>← Voltar</button><span>Conversa segura • sem spam</span></div>
+  </dialog>
+
+  <script src="capture.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
