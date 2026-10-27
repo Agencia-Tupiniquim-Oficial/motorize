@@ -7,6 +7,7 @@
   <title>Motorize+ · Painel de gestão</title>
   <link rel="stylesheet" href="/admin/admin.css">
   <link rel="stylesheet" href="/admin/admin-overrides.css">
+  <link rel="stylesheet" href="/admin/accounts.css">
 </head>
 <body>
   <section id="login" class="login-shell">
@@ -20,12 +21,13 @@
       <span class="eyebrow">ACESSO RESTRITO</span>
       <h2>Bem-vindo de volta.</h2>
       <p>Entre para acessar os dados comerciais da operação.</p>
-      <label for="username">Usuário</label>
+      <label for="username">Usuário ou e-mail</label>
       <input id="username" autocomplete="username" required>
       <label for="password">Senha</label>
       <input id="password" type="password" autocomplete="current-password" required>
       <button class="primary">Entrar no painel</button>
       <p id="login-error" role="alert"></p>
+      <button type="button" class="text-button" id="forgot-password">Esqueci minha senha</button>
       <a href="/">← Voltar ao site</a>
     </form>
   </section>
@@ -37,8 +39,12 @@
         <button data-tab="overview" class="active">◫ Visão geral</button>
         <button data-tab="leads">☷ Leads recebidos</button>
         <button data-tab="heatmap">◎ Mapa de calor</button>
+        <span class="nav-divider">ACESSO AO PAINEL</span>
+        <button data-tab="users" id="users-nav" hidden>♙ Usuários e permissões</button>
+        <button data-tab="account">◉ Minha conta</button>
       </nav>
       <div class="sidebar-bottom">
+        <p id="session-account" class="session-account"></p>
         <a href="/" target="_blank" rel="noopener">Abrir site ↗</a>
         <button id="logout">Sair da conta</button>
       </div>
@@ -46,8 +52,8 @@
 
     <main>
       <header>
-        <div><p class="eyebrow">ACOMPANHAMENTO COMERCIAL</p><h1 id="page-title">Visão geral</h1></div>
-        <div class="filters">
+        <div><p class="eyebrow" id="page-eyebrow">ACOMPANHAMENTO COMERCIAL</p><h1 id="page-title">Visão geral</h1></div>
+        <div class="filters" id="report-filters">
           <label for="period">Período</label>
           <select id="period"><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option><option value="90">Últimos 90 dias</option></select>
           <button id="refresh">Atualizar ↻</button>
@@ -102,10 +108,23 @@
           <article class="panel"><h2>O que observar</h2><ul><li>Cliques em áreas sem ação podem indicar uma expectativa não atendida.</li><li>Muitos acessos e poucos leads sugerem revisar a oferta e os botões.</li><li>Compare computador e celular antes de mudar elementos.</li></ul><p class="muted">Interprete os dados junto do volume de visitas.</p></article>
         </div>
       </section>
+      <section id="users" class="tab" hidden>
+        <div class="welcome account-welcome"><div><span class="eyebrow">GESTÃO DE ACESSOS</span><h2>As pessoas certas. O acesso certo.</h2><p>Contas de acesso ao painel. Estes usuários não são leads dos formulários.</p></div><button id="new-user" class="primary">+ Criar usuário</button></div>
+        <div class="role-cards"><article><b>Dono Administrador</b><p>Controle completo e gestão de administradores.</p></article><article><b>Administrador</b><p>Gerencia contas de Cliente e Editor.</p></article><article><b>Cliente e Editor</b><p>Consulta de leads, relatórios e mapa de calor.</p></article></div>
+        <p id="mail-status" class="account-notice" hidden>O envio de recuperação ainda precisa ser configurado no servidor. Consulte as instruções de SMTP da SiteGround.</p>
+        <article class="panel"><div class="table-toolbar"><div><h2>Usuários do painel</h2><p id="users-count"></p></div><input id="user-search" placeholder="Buscar nome, usuário ou e-mail" aria-label="Buscar usuário do painel"></div><div class="table-scroll"><table><thead><tr><th>Pessoa</th><th>Usuário</th><th>Perfil de acesso</th><th>Situação</th><th>Ações</th></tr></thead><tbody id="users-rows"></tbody></table></div></article>
+      </section>
+      <section id="account" class="tab" hidden>
+        <div class="account-grid"><article class="panel"><span class="eyebrow">SEU ACESSO</span><h2 id="account-name"></h2><dl id="account-info"></dl><p class="muted">Seu cadastro de acesso é separado dos contatos comerciais do site.</p></article><form id="change-password-form" class="panel account-form"><h2>Alterar minha senha</h2><label for="current-password">Senha atual</label><input id="current-password" type="password" autocomplete="current-password" required><label for="new-password">Nova senha</label><input id="new-password" type="password" minlength="12" maxlength="200" autocomplete="new-password" required><label for="confirm-password">Confirme a nova senha</label><input id="confirm-password" type="password" minlength="12" maxlength="200" autocomplete="new-password" required><p class="muted">Use ao menos 12 caracteres. Após a alteração, entre novamente.</p><button class="primary">Salvar nova senha</button><p id="password-message" role="status"></p></form></div>
+      </section>
     </main>
   </div>
 
   <dialog id="lead-detail"><button id="close-detail" class="close" aria-label="Fechar detalhes">×</button><h2>Detalhes do lead</h2><div id="lead-info"></div></dialog>
-  <script src="/admin/admin.js"></script>
+  <dialog id="user-dialog" class="account-dialog"><button type="button" class="close" data-close="user-dialog" aria-label="Fechar usuário">×</button><form id="user-form" class="account-form"><span class="eyebrow">ACESSO AO PAINEL</span><h2 id="user-dialog-title">Criar usuário</h2><label for="user-name">Nome</label><input id="user-name" maxlength="100" required><label for="user-username">Usuário</label><input id="user-username" pattern="[a-zA-Z0-9._@-]{3,100}" maxlength="100" autocomplete="off" required><label for="user-email">E-mail para recuperação</label><input id="user-email" type="email" maxlength="180" required><label for="user-role">Perfil de acesso</label><select id="user-role" required></select><div id="initial-password-wrap"><label for="user-password">Senha inicial</label><div class="password-row"><input id="user-password" type="password" minlength="12" maxlength="200" autocomplete="new-password"><button type="button" id="generate-password">Gerar</button></div><p class="muted">Guarde e compartilhe a senha com o usuário por um canal privado.</p></div><label class="checkbox-label"><input id="user-active" type="checkbox" checked> Conta ativa</label><p class="muted" id="user-edit-note" hidden>Salvar alterações encerra as sessões desse usuário. O dono não pode ser desativado nem rebaixado.</p><button class="primary">Salvar usuário</button><p id="user-message" role="alert"></p></form></dialog>
+  <dialog id="recovery-dialog" class="account-dialog"><button type="button" class="close" data-close="recovery-dialog" aria-label="Fechar recuperação">×</button><form id="recovery-form" class="account-form"><span class="eyebrow">RECUPERAR ACESSO</span><h2>Esqueceu sua senha?</h2><p>Informe o e-mail da sua conta de acesso ao painel.</p><label for="recovery-email">E-mail cadastrado</label><input id="recovery-email" type="email" autocomplete="email" maxlength="180" required><button class="primary">Enviar instruções</button><p id="recovery-message" role="status"></p></form></dialog>
+  <dialog id="reset-dialog" class="account-dialog"><button type="button" class="close" data-close="reset-dialog" aria-label="Fechar nova senha">×</button><form id="reset-form" class="account-form"><span class="eyebrow">RECUPERAÇÃO DE ACESSO</span><h2>Defina sua nova senha</h2><p>O link é pessoal, expira em 30 minutos e só pode ser usado uma vez.</p><label for="reset-password">Nova senha</label><input id="reset-password" type="password" minlength="12" maxlength="200" autocomplete="new-password" required><label for="reset-confirm">Confirme a senha</label><input id="reset-confirm" type="password" minlength="12" maxlength="200" autocomplete="new-password" required><button class="primary">Redefinir senha</button><p id="reset-message" role="status"></p></form></dialog>
+  <script src="/admin/admin.js?v=accounts-1"></script>
+  <script src="/admin/accounts-ui.js?v=accounts-1"></script>
 </body>
 </html>

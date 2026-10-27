@@ -3,6 +3,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
 const { passwordHash } = require('./server.cjs');
+const accounts = require('./accounts.cjs');
 
 function resetAdmin({
   username = process.env.MOTORIZE_ADMIN_USER || 'admin.motorize',
@@ -14,6 +15,7 @@ function resetAdmin({
     throw Error('Banco não encontrado. Defina DATA_DIR com a mesma pasta usada pelo servidor. Nenhum banco foi criado.');
   }
   const db = new DatabaseSync(databaseFile);
+  accounts.migrate(db);
   let inTransaction = false;
   try {
     db.exec('PRAGMA busy_timeout=5000;');
@@ -25,6 +27,7 @@ function resetAdmin({
       ON CONFLICT(username) DO UPDATE SET salt=excluded.salt,hash=excluded.hash`)
       .run(username, credentials.salt, credentials.hash);
     db.prepare('DELETE FROM sessions WHERE username=?').run(username);
+    db.prepare('DELETE FROM account_password_resets WHERE username=?').run(username);
     db.exec('COMMIT;');
     inTransaction = false;
     return { username, password };

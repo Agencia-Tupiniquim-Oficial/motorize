@@ -12,7 +12,7 @@ Landing page e painel administrativo da Tupiniquim. Esta é a versão portátil 
 
 ## Desenvolvimento local
 
-Instale Node.js 24 ou superior. Não existem dependências npm a instalar.
+Instale Node.js 24 ou superior. Instale as dependências com `npm ci --ignore-scripts` antes de iniciar. O envio de e-mail usa Nodemailer via SMTP com TLS.
 
 ```sh
 node create-admin.cjs
@@ -36,6 +36,8 @@ O Caddy usa as portas 80/443 para emitir o certificado HTTPS. Essas portas preci
 
 ## Recuperar a senha do painel
 
+A interface possui **Esqueci minha senha**, com envio ao e-mail da conta e link pessoal válido por 30 minutos. Configure o SMTP abaixo para habilitar esse fluxo. A recuperação usa somente a tabela de contas, nunca os e-mails capturados nos formulários de leads.
+
 Execute somente no servidor da aplicação. O comando cria uma senha aleatória e a mostra apenas no terminal; ela não deve ser enviada ao repositório. Ele atualiza somente o administrador informado e encerra suas sessões antigas, preservando leads, métricas e outros usuários.
 
 Com Docker, após a atualização do código e da imagem:
@@ -54,7 +56,7 @@ Se a pasta não contiver o banco existente, o comando recusa a operação para e
 
 ## Atualizações pela equipe
 
-1. Crie uma branch, altere os arquivos e execute `node --test server.test.cjs`.
+1. Crie uma branch, altere os arquivos e execute `npm test`.
 2. Envie as alterações e abra um pull request. O GitHub Actions repete os testes automaticamente.
 3. Após aprovação e integração na branch principal, no servidor execute:
 

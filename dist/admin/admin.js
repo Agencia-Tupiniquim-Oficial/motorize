@@ -11,6 +11,11 @@ async function api(path, body) {
   });
   const data = await response.json();
   if (response.status === 401) {
+    leads = [];
+    heatData = null;
+    $('#lead-rows').replaceChildren();
+    $('#lead-info').replaceChildren();
+    if (typeof clearAccountState === 'function') clearAccountState();
     $('#app').hidden = true;
     $('#login').hidden = false;
     throw Error(data.error);
@@ -51,11 +56,14 @@ $('#logout').addEventListener('click', async () => {
     $('#lead-rows').replaceChildren();
     $('#lead-info').replaceChildren();
     $('#lead-detail').close();
+    clearAccountState();
   } catch (error) { $('#app-error').textContent = error.message; }
 });
 
 async function load() {
   try {
+    const identity = await api('/api/admin/me');
+    applyAccountSession(identity);
     const data = await api(`/api/admin/dashboard?days=${period()}`);
     $('#app').hidden = false;
     $('#login').hidden = true;
@@ -63,6 +71,8 @@ async function load() {
     renderDashboard(data);
     if (active === 'leads') await loadLeads();
     if (active === 'heatmap') await loadHeat();
+    if (active === 'users') await loadAccounts();
+    if (active === 'account') loadProfile();
   } catch (error) { $('#app-error').textContent = error.message; }
 }
 
@@ -175,10 +185,14 @@ document.querySelectorAll('[data-tab]').forEach((button) => button.addEventListe
   window.scrollTo(0, 0);
   document.querySelectorAll('.tab').forEach((tab) => { tab.hidden = tab.id !== active; });
   document.querySelectorAll('[data-tab]').forEach((item) => item.classList.toggle('active', item === button));
-  $('#page-title').textContent = { overview: 'Visão geral', leads: 'Leads recebidos', heatmap: 'Mapa de calor' }[active];
+  $('#page-title').textContent = { overview: 'Visão geral', leads: 'Leads recebidos', heatmap: 'Mapa de calor', users: 'Usuários e permissões', account: 'Minha conta' }[active];
+  $('#report-filters').hidden = ['users', 'account'].includes(active);
+  $('#page-eyebrow').textContent = ['users', 'account'].includes(active) ? 'GESTÃO DO PAINEL' : 'ACOMPANHAMENTO COMERCIAL';
   try {
     if (active === 'leads') await loadLeads();
     if (active === 'heatmap') await loadHeat();
+    if (active === 'users') await loadAccounts();
+    if (active === 'account') loadProfile();
   } catch (error) { $('#app-error').textContent = error.message; }
 }));
 $('#period').addEventListener('change', load);
@@ -296,5 +310,3 @@ function renderFunnel(items) {
     $('#funnel').append(card);
   }
 }
-
-load();

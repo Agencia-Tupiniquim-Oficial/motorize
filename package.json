@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "engines": { "node": ">=24" },
+  "dependencies": { "nodemailer": "10.2.1" },
   "scripts": {
     "start": "node server.cjs",
     "create-admin": "node create-admin.cjs",
-    "test": "node --test server.test.cjs"
+    "configure-owner": "node configure-owner.cjs",
+    "test": "node --test server.test.cjs accounts.test.cjs"
   }
 }

@@ -5,6 +5,14 @@ services:
     environment:
       PUBLIC_ORIGIN: https://${DOMAIN:?Defina DOMAIN no arquivo .env}
       MOTORIZE_ADMIN_USER: ${MOTORIZE_ADMIN_USER:-admin.motorize}
+      MOTORIZE_OWNER_USER: ${MOTORIZE_OWNER_USER:-Tupiniquim_Motorize}
+      MOTORIZE_OWNER_EMAIL: ${MOTORIZE_OWNER_EMAIL:-ferramentas@agenciatupiniquim.com.br}
+      MOTORIZE_OWNER_PASSWORD: ${MOTORIZE_OWNER_PASSWORD:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-ferramentas@agenciatupiniquim.com.br}
     volumes:
       - motorize_data:/app/data
   proxy:

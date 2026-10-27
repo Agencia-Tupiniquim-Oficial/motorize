@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
+const accounts = require('./accounts.cjs');
 
 const OFFICIAL_ORIGIN = 'https://motorize.agenciatupiniquim.com.br';
 
@@ -22,6 +23,7 @@ function openDB(dir) {
     CREATE INDEX IF NOT EXISTS attempts_started ON attempts(started);
     CREATE TABLE IF NOT EXISTS visits(id TEXT PRIMARY KEY, session TEXT NOT NULL, device TEXT NOT NULL, created TEXT NOT NULL, depth INTEGER NOT NULL DEFAULT 0);
     CREATE TABLE IF NOT EXISTS clicks(id INTEGER PRIMARY KEY, visit TEXT NOT NULL REFERENCES visits(id), section TEXT NOT NULL, target TEXT NOT NULL, x REAL NOT NULL, y REAL NOT NULL, created TEXT NOT NULL);`);
+  accounts.migrate(db);
   return db;
 }
 
@@ -67,8 +69,13 @@ function cleanLead(raw, complete) {
   return out;
 }
 
-function createApp({ dataDir = process.env.DATA_DIR || path.join(__dirname, 'data'), publicOrigin = process.env.PUBLIC_ORIGIN || '' } = {}) {
+function createApp({ dataDir = process.env.DATA_DIR || path.join(__dirname, 'data'), publicOrigin = process.env.PUBLIC_ORIGIN || '', mailer = null, ownerConfig = null } = {}) {
   const db = openDB(dataDir);
+  accounts.bootstrapOwner(db, ownerConfig || {
+    username: process.env.MOTORIZE_OWNER_USER || 'Tupiniquim_Motorize',
+    email: process.env.MOTORIZE_OWNER_EMAIL || 'ferramentas@agenciatupiniquim.com.br',
+    password: process.env.MOTORIZE_OWNER_PASSWORD
+  });
   const configuredOrigin = publicOrigin ? new URL(publicOrigin).origin : '';
   // Keep the official domain usable when an old deployment variable still
   // points at SiteGround's temporary hostname. Never trust forwarded headers.
@@ -92,10 +99,10 @@ function createApp({ dataDir = process.env.DATA_DIR || path.join(__dirname, 'dat
 
   const server = http.createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Referrer-Policy', 'same-origin');
+    res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('X-Motorize-API-Version', '2026-10-27-domain-fix');
+    res.setHeader('X-Motorize-API-Version', '2026-10-27-accounts');
     const send = (status, value) => {
       res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(value));
@@ -125,11 +132,14 @@ function createApp({ dataDir = process.env.DATA_DIR || path.join(__dirname, 'dat
       }
 
       const ip = req.socket.remoteAddress;
+      if (!body || typeof body !== 'object' || Array.isArray(body)) return send(400, { error: 'Dados inválidos.' });
+      if (await accounts.handlePublic({ db, route, req, body, send, limited, mailer })) return;
       if (route === '/api/admin/login' && req.method === 'POST') {
         if (limited(`login:${ip}`, 12, 15 * 60e3)) return send(429, { error: 'Muitas tentativas. Tente novamente em 15 minutos.' });
-        const user = db.prepare('SELECT * FROM admins WHERE username=?').get(String(body.username || ''));
+        const login = String(body.username || '').trim().toLowerCase();
+        const user = db.prepare('SELECT * FROM admins WHERE lower(username)=? OR (email<>\'\' AND lower(email)=?)').get(login, login);
         const candidate = passwordHash(String(body.password || '').slice(0, 300), user?.salt || 'missing');
-        if (!user || !crypto.timingSafeEqual(Buffer.from(candidate.hash, 'hex'), Buffer.from(user.hash, 'hex'))) return send(401, { error: 'Usuário ou senha incorretos.' });
+        if (!user || !user.active || !accounts.ROLES[user.role] || !crypto.timingSafeEqual(Buffer.from(candidate.hash, 'hex'), Buffer.from(user.hash, 'hex'))) return send(401, { error: 'Usuário ou senha incorretos.' });
         const token = crypto.randomBytes(32).toString('hex');
         db.prepare('DELETE FROM sessions WHERE expires<?').run(Date.now());
         db.prepare('INSERT INTO sessions VALUES(?,?,?)').run(hash(token), user.username, Date.now() + 8 * 3600e3);
@@ -138,14 +148,15 @@ function createApp({ dataDir = process.env.DATA_DIR || path.join(__dirname, 'dat
       }
 
       if (route.startsWith('/api/admin/')) {
-        const cookie = String(req.headers.cookie || '').split(';').map((item) => item.trim()).find((item) => item.startsWith('motorize_admin='))?.slice(15);
-        const session = cookie && db.prepare('SELECT * FROM sessions WHERE token=? AND expires>?').get(hash(cookie), Date.now());
+        const session = accounts.sessionUser(db, req);
         if (!session) return send(401, { error: 'Faça login para acessar o painel.' });
+        if (!accounts.ROLES[session.role]) return send(403, { error: 'Perfil sem permissão.' });
         if (route === '/api/admin/logout' && req.method === 'POST') {
-          db.prepare('DELETE FROM sessions WHERE token=?').run(hash(cookie));
+          db.prepare('DELETE FROM sessions WHERE token=?').run(session.session_token);
           res.setHeader('Set-Cookie', 'motorize_admin=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0');
           return send(200, { ok: true });
         }
+        if (await accounts.handlePrivate({ db, route, req, body, send, user: session, limited, mailer })) return;
         if (req.method !== 'GET') return send(405, { error: 'Método não permitido.' });
         const days = [7, 30, 90].includes(Number(url.searchParams.get('days'))) ? Number(url.searchParams.get('days')) : 30;
         const since = new Date(Date.now() - days * 864e5).toISOString();

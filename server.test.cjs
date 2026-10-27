@@ -29,8 +29,8 @@ test('recupera administrador sem apagar leads ou alterar outros usuários', asyn
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'motorize-recovery-test-'));
   const { server, db } = createApp({ dataDir, publicOrigin: '' });
   const old = passwordHash('senha-antiga-do-teste');
-  db.prepare('INSERT INTO admins VALUES(?,?,?)').run('admin.motorize', old.salt, old.hash);
-  db.prepare('INSERT INTO admins VALUES(?,?,?)').run('outro.admin', old.salt, old.hash);
+  db.prepare('INSERT INTO admins(username,salt,hash) VALUES(?,?,?)').run('admin.motorize', old.salt, old.hash);
+  db.prepare('INSERT INTO admins(username,salt,hash) VALUES(?,?,?)').run('outro.admin', old.salt, old.hash);
   db.prepare('INSERT INTO sessions VALUES(?,?,?)').run('sessao-antiga', 'admin.motorize', Date.now() + 60000);
   db.prepare('INSERT INTO sessions VALUES(?,?,?)').run('outra-sessao', 'outro.admin', Date.now() + 60000);
   db.prepare('INSERT INTO leads VALUES(?,?,?,?,?,?,?,?)').run('lead-existente', 'token', 'form', 'started', '{"company":"Contato preservado"}', '2026-10-27', '2026-10-27', null);
@@ -65,7 +65,7 @@ test('registra, qualifica e lista um lead com autenticação', async (t) => {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'motorize-test-'));
   const { server, db } = createApp({ dataDir });
   const credentials = passwordHash('senha-segura');
-  db.prepare('INSERT INTO admins VALUES(?,?,?)').run('admin', credentials.salt, credentials.hash);
+  db.prepare('INSERT INTO admins(username,salt,hash) VALUES(?,?,?)').run('admin', credentials.salt, credentials.hash);
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   t.after(() => new Promise((resolve) => server.close(() => { fs.rmSync(dataDir, { recursive: true, force: true }); resolve(); })));
   const port = server.address().port;
@@ -131,7 +131,7 @@ test('domínio público, cookie seguro e arquivos de migração', async (t) => {
   const publicOrigin = 'https://concessionarias.exemplo.com.br';
   const { server, db } = createApp({ dataDir, publicOrigin });
   const credentials = passwordHash('senha-de-teste');
-  db.prepare('INSERT INTO admins VALUES(?,?,?)').run('teste', credentials.salt, credentials.hash);
+  db.prepare('INSERT INTO admins(username,salt,hash) VALUES(?,?,?)').run('teste', credentials.salt, credentials.hash);
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   t.after(() => new Promise((resolve) => server.close(() => { fs.rmSync(dataDir, { recursive: true, force: true }); resolve(); })));
   const base = `http://127.0.0.1:${server.address().port}`;
@@ -159,7 +159,7 @@ for (const previousOrigin of ['', 'https://rodrigoo45.sg-host.com']) {
     const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'motorize-domain-test-'));
     const { server, db } = createApp({ dataDir, publicOrigin: previousOrigin });
     const credentials = passwordHash('senha-apenas-do-teste');
-    db.prepare('INSERT INTO admins VALUES(?,?,?)').run('teste', credentials.salt, credentials.hash);
+    db.prepare('INSERT INTO admins(username,salt,hash) VALUES(?,?,?)').run('teste', credentials.salt, credentials.hash);
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
     t.after(() => new Promise((resolve) => server.close(() => {
       fs.rmSync(dataDir, { recursive: true, force: true });
@@ -188,6 +188,6 @@ for (const previousOrigin of ['', 'https://rodrigoo45.sg-host.com']) {
     const authenticated = { ...headers, Cookie: cookie.split(';')[0] };
     response = await requestWithHost(url + '/api/admin/dashboard', { headers: authenticated });
     assert.equal(response.status, 200);
-    assert.equal(response.headers.get('x-motorize-api-version'), '2026-10-27-domain-fix');
+    assert.equal(response.headers.get('x-motorize-api-version'), '2026-10-27-accounts');
   });
 }

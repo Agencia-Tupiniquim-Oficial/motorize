@@ -11,6 +11,6 @@ if (db.prepare('SELECT username FROM admins WHERE username=?').get(username)) {
 }
 const password = crypto.randomBytes(15).toString('base64url');
 const credentials = passwordHash(password);
-db.prepare('INSERT INTO admins VALUES(?,?,?)').run(username, credentials.salt, credentials.hash);
+db.prepare('INSERT INTO admins(username,salt,hash) VALUES(?,?,?)').run(username, credentials.salt, credentials.hash);
 db.close();
 console.log(`Usuário: ${username}\nSenha inicial: ${password}`);
