@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Motorize+ · Painel de gestão</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+  <link rel="stylesheet" href="/admin/admin-overrides.css">
+</head>
+<body>
+  <section id="login" class="login-shell">
+    <div class="login-brand">
+      <span class="brand">motorize<b>+</b><span>PAINEL DE PERFORMANCE</span></span>
+      <h1>Da primeira visita<br>à próxima oportunidade.</h1>
+      <p>Acompanhe os leads, entenda o comportamento do público e encontre oportunidades para melhorar a conversão.</p>
+      <div class="orb"></div>
+    </div>
+    <form id="login-form" class="login-form">
+      <span class="eyebrow">ACESSO RESTRITO</span>
+      <h2>Bem-vindo de volta.</h2>
+      <p>Entre para acessar os dados comerciais da operação.</p>
+      <label for="username">Usuário</label>
+      <input id="username" autocomplete="username" required>
+      <label for="password">Senha</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <button class="primary">Entrar no painel</button>
+      <p id="login-error" role="alert"></p>
+      <a href="/">← Voltar ao site</a>
+    </form>
+  </section>
+
+  <div id="app" hidden>
+    <aside>
+      <a href="/admin/" class="brand">motorize<b>+</b><span>PAINEL DE PERFORMANCE</span></a>
+      <nav>
+        <button data-tab="overview" class="active">◫ Visão geral</button>
+        <button data-tab="leads">☷ Leads recebidos</button>
+        <button data-tab="heatmap">◎ Mapa de calor</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <a href="/" target="_blank" rel="noopener">Abrir site ↗</a>
+        <button id="logout">Sair da conta</button>
+      </div>
+    </aside>
+
+    <main>
+      <header>
+        <div><p class="eyebrow">ACOMPANHAMENTO COMERCIAL</p><h1 id="page-title">Visão geral</h1></div>
+        <div class="filters">
+          <label for="period">Período</label>
+          <select id="period"><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option><option value="90">Últimos 90 dias</option></select>
+          <button id="refresh">Atualizar ↻</button>
+        </div>
+      </header>
+      <p id="app-error" role="alert"></p>
+
+      <section id="overview" class="tab">
+        <div class="welcome"><div><h2>Marketing e comercial olhando para o mesmo funil.</h2><p>Veja como o site está gerando e qualificando oportunidades B2B.</p></div><span>Dados atualizados<br><strong id="updated">—</strong></span></div>
+        <div id="metrics" class="metrics"></div>
+        <section class="funnel-section">
+          <h2>Onde os preenchimentos param?</h2>
+          <p class="muted">O acompanhamento começa na primeira interação. Após 30 minutos sem atividade, uma tentativa incompleta é classificada como desistência.</p>
+          <div id="funnel" class="grid-two"></div>
+          <p class="muted funnel-note">Taxa = desistências ÷ (conclusões + desistências). Tentativas em andamento ficam fora do cálculo. A etapa mostra o último ponto alcançado.</p>
+        </section>
+        <div class="grid-two">
+          <article class="panel"><h2>Acessos por dia</h2><p>Carregamentos da página no período, incluindo retornos.</p><div id="daily" class="bars"></div></article>
+          <article class="panel"><h2>Até onde as pessoas chegam?</h2><p>Percentual de visitas que alcançou cada profundidade da página.</p><div id="depth"></div></article>
+        </div>
+        <article class="panel definitions"><h2>Como ler os números</h2><p><strong>Iniciados:</strong> nome, e-mail e telefone registrados. <strong>Qualificados:</strong> perfil B2B concluído antes de abrir o WhatsApp. Isso não confirma o envio da mensagem, reunião ou venda.</p></article>
+      </section>
+
+      <section id="leads" class="tab" hidden>
+        <div class="panel">
+          <div class="table-toolbar">
+            <div><h2>Leads recebidos</h2><p>Dados salvos durante o preenchimento e atualizados na conclusão.</p></div>
+            <input id="search" aria-label="Buscar lead" placeholder="Buscar nome, empresa, e-mail ou telefone">
+            <select id="source" aria-label="Origem"><option value="all">Todas as origens</option><option value="form">Formulário</option><option value="chat">Chat</option></select>
+          </div>
+          <div class="table-scroll"><table><thead><tr><th>Contato</th><th>Empresa</th><th>Origem</th><th>Situação</th><th>Investimento</th><th>Recebido em</th><th></th></tr></thead><tbody id="lead-rows"></tbody></table></div>
+          <p id="lead-count" class="muted"></p>
+        </div>
+      </section>
+
+      <section id="heatmap" class="tab" hidden>
+        <div class="panel">
+          <div class="table-toolbar">
+            <div><h2>Onde as pessoas clicam</h2><p>Áreas mais quentes indicam maior concentração de cliques.</p></div>
+            <select id="section" aria-label="Seção do site">
+              <option value="inicio">Banner</option><option value="diagnostico">Diagnóstico</option><option value="metodo">Contexto</option><option value="especialistas">Especialistas</option><option value="solucoes">Soluções</option><option value="faq">Perguntas</option><option value="contato">Chamada final</option><option value="rodape">Rodapé</option><option value="cabecalho">Cabeçalho</option>
+            </select>
+            <select id="device" aria-label="Dispositivo"><option value="desktop">Computador</option><option value="mobile">Celular</option></select>
+          </div>
+          <div class="heat-legend"><span>Menos cliques</span><i></i><span>Mais cliques</span><strong id="heat-count"></strong></div>
+          <p class="muted">Posições aproximadas sobre o layout atual. Campos digitados e conversas não são capturados.</p>
+          <div id="heat-empty" class="empty" hidden>Ainda não há cliques registrados nesta seção e dispositivo.</div>
+          <div id="heat-frame-wrap"><div id="heat-stage"><iframe id="heat-frame" title="Prévia da seção do site" src="/index.html?heatmap=1" tabindex="-1"></iframe><canvas id="heat-canvas"></canvas></div></div>
+        </div>
+        <div class="grid-two">
+          <article class="panel"><h2>Ações mais clicadas</h2><div id="top-targets"></div></article>
+          <article class="panel"><h2>O que observar</h2><ul><li>Cliques em áreas sem ação podem indicar uma expectativa não atendida.</li><li>Muitos acessos e poucos leads sugerem revisar a oferta e os botões.</li><li>Compare computador e celular antes de mudar elementos.</li></ul><p class="muted">Interprete os dados junto do volume de visitas.</p></article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="lead-detail"><button id="close-detail" class="close" aria-label="Fechar detalhes">×</button><h2>Detalhes do lead</h2><div id="lead-info"></div></dialog>
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

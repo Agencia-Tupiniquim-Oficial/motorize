@@ -1,0 +1,2 @@
+.brand::after{content:none}
+.brand>b{color:var(--gold)}
