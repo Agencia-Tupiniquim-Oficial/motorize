@@ -34,6 +34,24 @@ Em um servidor com Docker Compose e domínio apontado para o IP do servidor:
 
 O Caddy usa as portas 80/443 para emitir o certificado HTTPS. Essas portas precisam estar disponíveis. O banco fica no volume persistente `motorize_data`.
 
+## Recuperar a senha do painel
+
+Execute somente no servidor da aplicação. O comando cria uma senha aleatória e a mostra apenas no terminal; ela não deve ser enviada ao repositório. Ele atualiza somente o administrador informado e encerra suas sessões antigas, preservando leads, métricas e outros usuários.
+
+Com Docker, após a atualização do código e da imagem:
+
+```sh
+docker compose exec web node reset-admin.cjs admin.motorize
+```
+
+Sem Docker, execute na pasta da aplicação com o MESMO `DATA_DIR` do processo em produção:
+
+```sh
+node reset-admin.cjs admin.motorize
+```
+
+Se a pasta não contiver o banco existente, o comando recusa a operação para evitar criar um banco vazio por engano. A senha só muda quando esse comando é executado no servidor; publicar o arquivo no GitHub não altera nenhuma credencial.
+
 ## Atualizações pela equipe
 
 1. Crie uma branch, altere os arquivos e execute `node --test server.test.cjs`.

@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { createApp, passwordHash } = require('./server.cjs');
+const { resetAdmin } = require('./reset-admin.cjs');
 
 function requestWithHost(url, options = {}) {
   return new Promise((resolve, reject) => {
@@ -23,6 +24,42 @@ function requestWithHost(url, options = {}) {
     req.end(options.body);
   });
 }
+
+test('recupera administrador sem apagar leads ou alterar outros usuários', async (t) => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'motorize-recovery-test-'));
+  const { server, db } = createApp({ dataDir, publicOrigin: '' });
+  const old = passwordHash('senha-antiga-do-teste');
+  db.prepare('INSERT INTO admins VALUES(?,?,?)').run('admin.motorize', old.salt, old.hash);
+  db.prepare('INSERT INTO admins VALUES(?,?,?)').run('outro.admin', old.salt, old.hash);
+  db.prepare('INSERT INTO sessions VALUES(?,?,?)').run('sessao-antiga', 'admin.motorize', Date.now() + 60000);
+  db.prepare('INSERT INTO sessions VALUES(?,?,?)').run('outra-sessao', 'outro.admin', Date.now() + 60000);
+  db.prepare('INSERT INTO leads VALUES(?,?,?,?,?,?,?,?)').run('lead-existente', 'token', 'form', 'started', '{"company":"Contato preservado"}', '2026-10-27', '2026-10-27', null);
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise((resolve) => server.close(() => {
+    fs.rmSync(dataDir, { recursive: true, force: true });
+    resolve();
+  })));
+  const recovered = resetAdmin({ dataDir, username: 'admin.motorize' });
+  assert.equal(recovered.username, 'admin.motorize');
+  assert.match(recovered.password, /^[a-zA-Z0-9_-]{32}$/);
+  assert.equal(db.prepare('SELECT hash FROM admins WHERE username=?').get('outro.admin').hash, old.hash);
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM sessions WHERE username=?').get('admin.motorize').n, 0);
+  assert.equal(db.prepare('SELECT COUNT(*) n FROM sessions WHERE username=?').get('outro.admin').n, 1);
+  assert.equal(db.prepare('SELECT data FROM leads WHERE id=?').get('lead-existente').data, '{"company":"Contato preservado"}');
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const headers = { Origin: base, 'Content-Type': 'application/json' };
+  const response = await fetch(base + '/api/admin/login', { method: 'POST', headers, body: JSON.stringify(recovered) });
+  assert.equal(response.status, 200, 'nova senha permite login');
+  const rejected = await fetch(base + '/api/admin/login', { method: 'POST', headers, body: JSON.stringify({ username: recovered.username, password: 'senha-antiga-do-teste' }) });
+  assert.equal(rejected.status, 401, 'senha anterior deixa de funcionar');
+});
+
+test('recuperação recusa pasta errada sem criar banco vazio', (t) => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'motorize-recovery-missing-'));
+  t.after(() => fs.rmSync(dataDir, { recursive: true, force: true }));
+  assert.throws(() => resetAdmin({ dataDir }), /Banco não encontrado/);
+  assert.equal(fs.existsSync(path.join(dataDir, 'motorize.sqlite')), false);
+});
 
 test('registra, qualifica e lista um lead com autenticação', async (t) => {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'motorize-test-'));
