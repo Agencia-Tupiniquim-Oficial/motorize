@@ -3,6 +3,12 @@ services:
     build: .
     restart: unless-stopped
     environment:
+      DB_DRIVER: ${DB_DRIVER:-sqlite}
+      MYSQL_HOST: ${MYSQL_HOST:-localhost}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-}
+      MYSQL_USER: ${MYSQL_USER:-}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-}
       PUBLIC_ORIGIN: https://${DOMAIN:?Defina DOMAIN no arquivo .env}
       MOTORIZE_ADMIN_USER: ${MOTORIZE_ADMIN_USER:-admin.motorize}
       MOTORIZE_OWNER_USER: ${MOTORIZE_OWNER_USER:-Tupiniquim_Motorize}

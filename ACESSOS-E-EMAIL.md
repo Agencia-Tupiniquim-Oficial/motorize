@@ -60,3 +60,7 @@ Se não existir SMTP configurado, a interface informa que o envio está indispon
 O link abre `https://motorize.agenciatupiniquim.com.br/admin/#reset=...`. O token fica no fragmento da URL, não no caminho enviado ao servidor e nem em logs de requisição. O navegador remove o fragmento da barra antes do uso. No banco é salvo somente o hash do token, com validade de 30 minutos. O link só funciona uma vez e a troca de senha encerra as sessões anteriores. Novo pedido de recuperação ou alteração de e-mail/perfil invalida links anteriores.
 
 As credenciais e o SMTP precisam ser aplicados pelo responsável com acesso ao ambiente de produção. A integração com GitHub atualiza os arquivos, mas não fornece à aplicação os segredos de produção automaticamente.
+# Banco permanente na SiteGround
+
+Se a aplicação usa publicação automática, siga também [MYSQL-SITEGROUND.md](MYSQL-SITEGROUND.md) para manter contas, leads e métricas em MySQL. Os comandos de manutenção do SQLite deste documento não devem ser usados para alterar contas MySQL. O dono continua sendo configurado pelas variáveis da hospedagem, apenas na primeira inicialização do banco.
+

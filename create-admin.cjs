@@ -1,6 +1,7 @@
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { openDB, passwordHash } = require('./server.cjs');
+if (process.env.DB_DRIVER === 'mysql') throw Error('No MySQL, configure o dono pelas variáveis da hospedagem e crie os demais usuários pelo painel. Este utilitário é exclusivo do SQLite.');
 
 const db = openDB(process.env.DATA_DIR || path.join(__dirname, 'data'));
 const username = process.env.MOTORIZE_ADMIN_USER || 'admin';

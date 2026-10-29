@@ -7,6 +7,19 @@ permissions:
 jobs:
   testes:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: mysql-teste-descartavel-2026
+          MYSQL_ROOT_HOST: '%'
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -15,4 +28,8 @@ jobs:
       - name: Instalar dependências de envio de e-mail
         run: npm ci --ignore-scripts
       - name: Validar formulário, autenticação e painel
-        run: node --test server.test.cjs accounts.test.cjs scroll.test.cjs
+        env:
+          MYSQL_TEST_DATABASE: motorize_test_20261029
+          MYSQL_TEST_PASSWORD: mysql-teste-descartavel-2026
+          MYSQL_TEST_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: npm test

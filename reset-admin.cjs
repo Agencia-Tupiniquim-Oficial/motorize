@@ -9,6 +9,7 @@ function resetAdmin({
   username = process.env.MOTORIZE_ADMIN_USER || 'admin.motorize',
   dataDir = process.env.DATA_DIR || path.join(__dirname, 'data')
 } = {}) {
+  if (process.env.DB_DRIVER === 'mysql') throw Error('Este utilitário altera somente SQLite. No MySQL, use a recuperação por e-mail ou manutenção autenticada no banco configurado.');
   if (!/^[a-zA-Z0-9._@-]{3,100}$/.test(username)) throw Error('Usuário inválido.');
   const databaseFile = path.resolve(dataDir, 'motorize.sqlite');
   if (!fs.existsSync(databaseFile)) {
