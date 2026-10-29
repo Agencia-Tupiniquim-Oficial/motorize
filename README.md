@@ -25,6 +25,8 @@ Site: `http://127.0.0.1:4179/`. Painel: `http://127.0.0.1:4179/admin/`.
 
 ## Hospedagem
 
+Para a SiteGround com publicação automática pelo GitHub, use o banco MySQL gerenciado, separado dos arquivos da aplicação. Siga [MYSQL-SITEGROUND.md](MYSQL-SITEGROUND.md). As instruções de Docker abaixo mantêm SQLite em um volume persistente. Não configure MySQL sem credenciais completas e não publique bancos ou senhas no repositório.
+
 Em um servidor com Docker Compose e domínio apontado para o IP do servidor:
 
 1. Copie `.env.example` para `.env` e preencha `DOMAIN` e `MOTORIZE_ADMIN_USER`.

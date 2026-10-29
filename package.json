@@ -2,12 +2,17 @@
   "name": "motorize-portavel",
   "version": "1.0.0",
   "private": true,
-  "engines": { "node": ">=24" },
-  "dependencies": { "nodemailer": "10.2.1" },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "mysql2": "3.24.6",
+    "nodemailer": "10.2.1"
+  },
   "scripts": {
     "start": "node server.cjs",
     "create-admin": "node create-admin.cjs",
     "configure-owner": "node configure-owner.cjs",
-    "test": "node --test server.test.cjs accounts.test.cjs scroll.test.cjs"
+    "test": "node --test server.test.cjs accounts.test.cjs scroll.test.cjs mysql-db.test.cjs mysql.integration.test.cjs"
   }
 }

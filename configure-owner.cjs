@@ -6,6 +6,7 @@ const { openDB } = require('./server.cjs');
 const { bootstrapOwner } = require('./accounts.cjs');
 
 async function main() {
+  if (process.env.DB_DRIVER === 'mysql') throw Error('No MySQL, configure MOTORIZE_OWNER_USER, MOTORIZE_OWNER_EMAIL e MOTORIZE_OWNER_PASSWORD na hospedagem. O dono é criado uma única vez na primeira inicialização.');
   const username = process.env.MOTORIZE_OWNER_USER || 'Tupiniquim_Motorize';
   const email = process.env.MOTORIZE_OWNER_EMAIL || 'ferramentas@agenciatupiniquim.com.br';
   const dataDir = process.env.DATA_DIR || path.join(__dirname, 'data');
