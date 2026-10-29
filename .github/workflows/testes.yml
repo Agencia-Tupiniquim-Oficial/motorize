@@ -15,4 +15,4 @@ jobs:
       - name: Instalar dependências de envio de e-mail
         run: npm ci --ignore-scripts
       - name: Validar formulário, autenticação e painel
-        run: node --test server.test.cjs accounts.test.cjs
+        run: node --test server.test.cjs accounts.test.cjs scroll.test.cjs

@@ -166,7 +166,7 @@ function createApp({ dataDir = process.env.DATA_DIR || path.join(__dirname, 'dat
           const views = db.prepare('SELECT COUNT(*) n, COUNT(DISTINCT session) sessions FROM visits WHERE created>=?').get(since);
           const counts = db.prepare('SELECT source,status,COUNT(*) n FROM leads WHERE created>=? GROUP BY source,status').all(since);
           const daily = db.prepare("SELECT date(created,'-3 hours') day,COUNT(*) n FROM visits WHERE created>=? GROUP BY day ORDER BY day").all(since);
-          const depth = db.prepare('SELECT COUNT(*) n,SUM(depth>=25) d25,SUM(depth>=50) d50,SUM(depth>=75) d75,SUM(depth>=90) d90 FROM visits WHERE created>=?').get(since);
+          const depth = db.prepare('SELECT COUNT(*) n,SUM(depth>=25) d25,SUM(depth>=50) d50,SUM(depth>=75) d75,SUM(depth>=90) d90,SUM(depth>=100) d100 FROM visits WHERE created>=?').get(since);
           const cutoff = new Date(Date.now() - 30 * 60e3).toISOString();
           const funnel = ['form', 'chat'].map((source) => {
             const totals = db.prepare('SELECT COUNT(*) started,SUM(completed IS NOT NULL) completed,SUM(completed IS NULL AND updated<=?) abandoned,SUM(completed IS NULL AND updated>?) active FROM attempts WHERE source=? AND started>=?').get(cutoff, cutoff, source, since);

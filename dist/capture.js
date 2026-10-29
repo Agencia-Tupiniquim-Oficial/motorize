@@ -125,9 +125,13 @@
 
   const send = (data) => fetch('/api/analytics', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ visit, ...data }), keepalive: true
-  }).catch(() => {});
+  }).then((response) => response.ok).catch(() => false);
   let ready = false;
-  send({ type: 'view', session, device: innerWidth <= 800 ? 'mobile' : 'desktop' }).then(() => { ready = true; });
+  async function registerView(attempt = 0) {
+    ready = await send({ type: 'view', session, device: innerWidth <= 800 ? 'mobile' : 'desktop' });
+    if (ready) recordDepth(true);
+    else if (attempt < 2) setTimeout(() => registerView(attempt + 1), 1500 * (attempt + 1));
+  }
 
   const allowed = ['inicio', 'diagnostico', 'metodo', 'especialistas', 'solucoes', 'faq', 'contato', 'rodape', 'cabecalho'];
   document.addEventListener('click', (event) => {
@@ -151,16 +155,29 @@
   }, { passive: true });
 
   let depth = 0;
+  let peakDepth = 0;
   let timer;
-  function recordDepth() {
+  function sampleDepth() {
+    const height = document.documentElement.scrollHeight;
+    const bottom = Math.max(0, scrollY) + innerHeight;
+    const next = bottom >= height - 2 ? 100 : Math.min(99, Math.floor(bottom / height * 100));
+    peakDepth = Math.max(peakDepth, next);
+  }
+  async function recordDepth(force = false) {
+    sampleDepth();
     if (!ready) return;
-    const next = Math.min(100, Math.round((scrollY + innerHeight) / document.documentElement.scrollHeight * 100));
-    if (next >= depth + 10 || (next >= 90 && depth < 90)) {
-      depth = next;
-      send({ type: 'depth', depth });
+    const next = peakDepth;
+    if (next > depth && (force || next >= depth + 5 || [25, 50, 75, 90, 100].some((mark) => depth < mark && next >= mark))) {
+      if (await send({ type: 'depth', depth: next })) depth = Math.max(depth, next);
     }
   }
-  addEventListener('scroll', () => { clearTimeout(timer); timer = setTimeout(recordDepth, 500); }, { passive: true });
-  addEventListener('pagehide', recordDepth);
-  addEventListener('load', () => setTimeout(recordDepth, 700));
+  addEventListener('scroll', () => {
+    sampleDepth();
+    if (!timer) timer = setTimeout(() => { timer = null; recordDepth(); }, 250);
+  }, { passive: true });
+  addEventListener('pagehide', () => recordDepth(true));
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') recordDepth(true); });
+  addEventListener('resize', () => recordDepth(true));
+  addEventListener('load', () => recordDepth(true));
+  registerView();
 })();

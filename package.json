@@ -8,6 +8,6 @@
     "start": "node server.cjs",
     "create-admin": "node create-admin.cjs",
     "configure-owner": "node configure-owner.cjs",
-    "test": "node --test server.test.cjs accounts.test.cjs"
+    "test": "node --test server.test.cjs accounts.test.cjs scroll.test.cjs"
   }
 }

@@ -3,6 +3,58 @@ let leads = [];
 let active = 'overview';
 let heatData = null;
 let heatSequence = 0;
+let originData = [];
+const originColors = ['#d3a32d', '#14263b', '#368681', '#677fbd', '#b16b58', '#8c75a3', '#7e8957', '#9ba3ad'];
+
+function renderOrigins() {
+  const host = $('#lead-origins');
+  host.replaceChildren();
+  const total = originData.reduce((sum, item) => sum + item.total, 0);
+  if (!total) { host.append(el('p', 'As origens aparecerão conforme os contatos forem recebidos.', 'empty')); return; }
+  const items = originData.slice(0, 7);
+  if (originData.length > 7) items.push({ label: 'Outras origens', total: originData.slice(7).reduce((sum, item) => sum + item.total, 0), qualified: originData.slice(7).reduce((sum, item) => sum + item.qualified, 0) });
+  const pie = $('#origins-chart-type').value === 'pie';
+  const chart = el('div', undefined, pie ? 'origin-pie' : 'origin-columns');
+  chart.setAttribute('role', 'img');
+  chart.setAttribute('aria-label', `${pie ? 'Gráfico de pizza' : 'Gráfico de colunas'}: ${items.map((item) => `${item.label}, ${item.total} contatos`).join('; ')}`);
+  const max = Math.max(...items.map((item) => item.total));
+  let angle = 0;
+  const slices = [];
+  items.forEach((item, index) => {
+    if (pie) {
+      const end = angle + item.total / total * 360;
+      slices.push(`${originColors[index]} ${angle}deg ${end}deg`);
+      angle = end;
+    } else {
+      const column = el('div', undefined, 'origin-column');
+      const bar = el('i');
+      bar.style.height = `${item.total / max * 160}px`;
+      bar.style.background = originColors[index];
+      column.title = `${item.label}: ${item.total} contatos (${Math.round(item.total / total * 100)}%)`;
+      column.append(el('strong', item.total), bar, el('span', item.label));
+      chart.append(column);
+    }
+  });
+  if (pie) chart.style.background = `conic-gradient(${slices.join(',')})`;
+  const layout = el('div', undefined, 'origin-chart-layout');
+  const summary = el('div', undefined, 'origin-summary');
+  summary.append(el('strong', total), el('span', 'contatos no período'));
+  const legend = el('ul', undefined, 'origin-legend');
+  items.forEach((item, index) => {
+    const row = el('li');
+    const dot = el('i');
+    dot.style.background = originColors[index];
+    const label = el('div');
+    label.append(el('strong', item.label), el('small', `${item.qualified} com qualificação concluída`));
+    row.append(dot, label, el('span', `${item.total} · ${(item.total / total * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`));
+    legend.append(row);
+  });
+  const visual = el('div', undefined, 'origin-visual');
+  visual.append(chart, summary);
+  layout.append(visual, legend);
+  host.append(layout);
+}
+$('#origins-chart-type').addEventListener('change', renderOrigins);
 
 async function api(path, body) {
   const response = await fetch(path, {
@@ -78,21 +130,8 @@ async function load() {
 
 function renderDashboard(data) {
   renderFunnel(data.funnel || []);
-  $('#lead-origins').replaceChildren();
-  const origins = data.origins || [];
-  const totalOrigins = origins.reduce((sum, item) => sum + item.total, 0);
-  if (!origins.length) $('#lead-origins').append(el('p', 'As origens aparecerão conforme os contatos forem recebidos.', 'empty'));
-  origins.forEach((item) => {
-    const row = el('div', undefined, 'origin-row');
-    const heading = el('div', undefined, 'origin-heading');
-    heading.append(el('strong', item.label), el('span', `${item.total} contato(s) · ${Math.round(item.total / totalOrigins * 100)}%`));
-    const track = el('div', undefined, 'depth-track');
-    const fill = el('i');
-    fill.style.width = `${item.total / totalOrigins * 100}%`;
-    track.append(fill);
-    row.append(heading, track, el('small', `${item.qualified} com qualificação concluída`));
-    $('#lead-origins').append(row);
-  });
+  originData = data.origins || [];
+  renderOrigins();
   const count = (source, status) => data.counts.filter((item) => (!source || item.source === source) && (!status || item.status === status)).reduce((sum, item) => sum + item.n, 0);
   const qualified = count(null, 'completed');
   const started = count();
@@ -123,14 +162,14 @@ function renderDashboard(data) {
     });
   }
   $('#depth').replaceChildren();
-  [25, 50, 75, 90].forEach((percent) => {
+  [25, 50, 75, 90, 100].forEach((percent) => {
     const number = data.depth[`d${percent}`] || 0;
     const value = data.depth.n ? Math.round(number / data.depth.n * 100) : 0;
     const row = el('div', undefined, 'depth-row');
     const top = el('div');
     const track = el('div', undefined, 'depth-track');
     const fill = el('i');
-    top.append(el('span', `Chegaram a ${percent}% da página`), el('strong', `${value}%`));
+    top.append(el('span', percent === 100 ? 'Chegaram ao fim da página' : `Chegaram a ${percent}% da página`), el('strong', `${value}% · ${number} de ${data.depth.n} visitas`));
     fill.style.width = `${value}%`;
     track.append(fill);
     row.append(top, track);
@@ -241,6 +280,7 @@ async function loadHeat() {
 
 function drawHeat() {
   if (!heatData || active !== 'heatmap') return;
+  const dataToDraw = heatData;
   const frame = $('#heat-frame');
   const doc = frame.contentDocument;
   if (!doc || !doc.querySelector(`#${heatData.section}`)) return;
@@ -248,17 +288,21 @@ function drawHeat() {
   frame.style.width = `${width}px`;
   frame.style.height = '900px';
   requestAnimationFrame(() => {
+    if (heatData !== dataToDraw || active !== 'heatmap') return;
     const section = doc.querySelector(`#${heatData.section}`);
     const height = Math.ceil(section.getBoundingClientRect().height);
     const scale = Math.min(1, $('#heat-frame-wrap').clientWidth / width);
-    frame.style.height = `${height}px`;
+    frame.style.height = `${Math.max(900, doc.documentElement.scrollHeight)}px`;
     const stage = $('#heat-stage');
     stage.style.left = `${Math.max(0, ($('#heat-frame-wrap').clientWidth - width * scale) / 2)}px`;
     stage.style.width = `${width}px`;
     stage.style.height = `${height}px`;
     stage.style.transform = `scale(${scale})`;
     $('#heat-frame-wrap').style.height = `${Math.ceil(height * scale)}px`;
-    frame.contentWindow.scrollTo({ top: section.getBoundingClientRect().top + frame.contentWindow.scrollY, behavior: 'instant' });
+    // Crop the complete page instead of scrolling inside an iframe resized to
+    // each section. That scroll was clamped near the footer and shifted clicks.
+    const offset = section.getBoundingClientRect().top + frame.contentWindow.scrollY;
+    frame.style.top = `${-offset}px`;
     const canvas = $('#heat-canvas');
     canvas.width = width;
     canvas.height = height;
@@ -289,6 +333,11 @@ function drawHeat() {
 }
 
 $('#heat-frame').addEventListener('load', drawHeat);
+$('#heat-frame').addEventListener('load', () => {
+  const doc = $('#heat-frame').contentDocument;
+  doc?.fonts?.ready.then(drawHeat);
+  doc?.querySelectorAll('img').forEach((image) => { if (!image.complete) image.addEventListener('load', drawHeat, { once: true }); });
+});
 window.addEventListener('resize', drawHeat);
 
 function renderFunnel(items) {

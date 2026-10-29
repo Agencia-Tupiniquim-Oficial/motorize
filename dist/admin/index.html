@@ -64,7 +64,7 @@
       <section id="overview" class="tab">
         <div class="welcome"><div><h2>Marketing e comercial olhando para o mesmo funil.</h2><p>Veja como o site está gerando e qualificando oportunidades B2B.</p></div><span>Dados atualizados<br><strong id="updated">—</strong></span></div>
         <div id="metrics" class="metrics"></div>
-        <article class="panel origin-panel"><h2>De onde vêm os leads?</h2><p>Origem da visita dos contatos recebidos no período. Cada contato é contado uma vez, mesmo quando conclui a qualificação.</p><div id="lead-origins"></div><p class="muted">Identificação por parâmetros de campanha (UTM) ou site de referência, quando disponíveis. Direto / sem referência também inclui acessos cuja origem o navegador não informou. Contatos anteriores à atualização aparecem sem origem registrada.</p></article>
+        <article class="panel origin-panel"><div class="table-toolbar"><div><h2>De onde vêm os leads?</h2><p>Contatos recebidos por origem da visita no período selecionado.</p></div><label for="origins-chart-type">Visualização</label><select id="origins-chart-type"><option value="columns">Colunas</option><option value="pie">Pizza</option></select></div><div id="lead-origins"></div><p class="muted">Cada contato é contado uma vez. Identificação por campanha (UTM) ou referência externa. Direto / sem referência inclui acessos cuja origem o navegador não informou. Contatos anteriores à atualização aparecem sem origem registrada.</p></article>
         <section class="funnel-section">
           <h2>Onde os preenchimentos param?</h2>
           <p class="muted">O acompanhamento começa na primeira interação. Após 30 minutos sem atividade, uma tentativa incompleta é classificada como desistência.</p>
@@ -73,7 +73,7 @@
         </section>
         <div class="grid-two">
           <article class="panel"><h2>Acessos por dia</h2><p>Carregamentos da página no período, incluindo retornos.</p><div id="daily" class="bars"></div></article>
-          <article class="panel"><h2>Até onde as pessoas chegam?</h2><p>Percentual de visitas que alcançou cada profundidade da página.</p><div id="depth"></div></article>
+          <article class="panel"><h2>Até onde as pessoas chegam?</h2><p>Percentual e quantidade de visitas que visualizaram cada profundidade da página. Considera a borda inferior da tela, incluindo a área visível ao abrir o site.</p><div id="depth"></div><p class="muted">Profundidade máxima por visita; voltar ao topo não reduz o alcance. A correção da medição vale para novas visitas, sem recalcular o histórico.</p></article>
         </div>
         <article class="panel definitions"><h2>Como ler os números</h2><p><strong>Iniciados:</strong> nome, e-mail e telefone registrados. <strong>Qualificados:</strong> perfil B2B concluído antes de abrir o WhatsApp. Isso não confirma o envio da mensagem, reunião ou venda.</p></article>
       </section>
@@ -100,7 +100,7 @@
             <select id="device" aria-label="Dispositivo"><option value="desktop">Computador</option><option value="mobile">Celular</option></select>
           </div>
           <div class="heat-legend"><span>Menos cliques</span><i></i><span>Mais cliques</span><strong id="heat-count"></strong></div>
-          <p class="muted">Posições aproximadas sobre o layout atual. Campos digitados e conversas não são capturados.</p>
+          <p class="muted">Mapa de cliques sobre o layout atual, com posições aproximadas. Role esta página para ver toda a seção selecionada. O alcance de rolagem está na Visão geral, em “Até onde as pessoas chegam?”. Campos digitados e conversas não são capturados.</p>
           <div id="heat-empty" class="empty" hidden>Ainda não há cliques registrados nesta seção e dispositivo.</div>
           <div id="heat-frame-wrap"><div id="heat-stage"><iframe id="heat-frame" title="Prévia da seção do site" src="/index.html?heatmap=1" tabindex="-1"></iframe><canvas id="heat-canvas"></canvas></div></div>
         </div>
@@ -126,7 +126,7 @@
   <dialog id="recovery-dialog" class="account-dialog"><button type="button" class="close" data-close="recovery-dialog" aria-label="Fechar recuperação">×</button><form id="recovery-form" class="account-form"><span class="eyebrow">RECUPERAR ACESSO</span><h2>Esqueceu sua senha?</h2><p>Informe o e-mail da sua conta de acesso ao painel.</p><label for="recovery-email">E-mail cadastrado</label><input id="recovery-email" type="email" autocomplete="email" maxlength="180" required><button class="primary">Enviar instruções</button><p id="recovery-message" role="status"></p></form></dialog>
   <dialog id="reset-dialog" class="account-dialog"><button type="button" class="close" data-close="reset-dialog" aria-label="Fechar nova senha">×</button><form id="reset-form" class="account-form"><span class="eyebrow">RECUPERAÇÃO DE ACESSO</span><h2>Defina sua nova senha</h2><p>O link é pessoal, expira em 30 minutos e só pode ser usado uma vez.</p><label for="reset-password">Nova senha</label><input id="reset-password" type="password" minlength="12" maxlength="200" autocomplete="new-password" required><label for="reset-confirm">Confirme a senha</label><input id="reset-confirm" type="password" minlength="12" maxlength="200" autocomplete="new-password" required><button class="primary">Redefinir senha</button><p id="reset-message" role="status"></p></form></dialog>
   <script src="/attribution.js"></script>
-  <script src="/admin/admin.js?v=origins-1"></script>
+  <script src="/admin/admin.js?v=charts-scroll-2"></script>
   <script src="/admin/accounts-ui.js?v=accounts-1"></script>
 </body>
 </html>

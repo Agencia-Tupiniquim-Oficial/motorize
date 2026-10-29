@@ -92,8 +92,15 @@ test('registra, qualifica e lista um lead com autenticação', async (t) => {
   assert.equal(result.leads[0].status, 'completed');
   assert.equal(result.leads[0].data.attribution.source, 'google', 'preserva origem ao completar sem reenviar atribuição');
   assert.equal(result.leads[0].data.attribution.referrer, 'google.com', 'não salva caminho ou parâmetros de referência');
+  const visit = crypto.randomUUID();
+  const session = crypto.randomUUID();
+  const event = async (payload) => fetch(`${base}/api/analytics`, { method: 'POST', headers, body: JSON.stringify({ visit, ...payload }) });
+  assert.equal((await event({ type: 'view', session })).status, 200);
+  for (const depth of [75, 25, 100, 50]) assert.equal((await event({ type: 'depth', depth })).status, 200);
+  assert.equal((await event({ type: 'depth', depth: 101 })).status, 400);
   const dashboard = await (await fetch(`${base}/api/admin/dashboard?days=30`, { headers: { Cookie: cookie } })).json();
   assert.deepEqual(dashboard.origins, [{ label: 'Google Ads', total: 1, qualified: 1 }]);
+  assert.deepEqual(dashboard.depth, { n: 1, d25: 1, d50: 1, d75: 1, d90: 1, d100: 1 }, 'conta visita uma vez e mantém o maior alcance mesmo com eventos fora de ordem');
 });
 
 test('classifica origens sem inventar atribuição de registros antigos', () => {
@@ -117,9 +124,9 @@ test('captura origem no navegador e preserva após recarga antes de salvar formu
     const context = {
       URL, URLSearchParams, crypto: require('node:crypto').webcrypto,
       location: { search, origin: 'https://motorize.agenciatupiniquim.com.br' },
-      document: { referrer, addEventListener() {} },
+      document: { referrer, documentElement: { scrollHeight: 1000 }, addEventListener() {} },
       sessionStorage: { getItem: (key) => storage.get(key) || null, setItem: (key, value) => storage.set(key, value), removeItem: (key) => storage.delete(key) },
-      innerWidth: 1200, addEventListener() {}, setTimeout() {}, clearTimeout() {},
+      innerWidth: 1200, innerHeight: 100, scrollY: 0, addEventListener() {}, setTimeout() {}, clearTimeout() {},
       fetch: async (url, options) => { payloads.push({ url, body: JSON.parse(options.body) }); return { ok: true, json: async () => ({ ok: true }) }; }
     };
     context.window = context;
