@@ -64,6 +64,7 @@
       <section id="overview" class="tab">
         <div class="welcome"><div><h2>Marketing e comercial olhando para o mesmo funil.</h2><p>Veja como o site está gerando e qualificando oportunidades B2B.</p></div><span>Dados atualizados<br><strong id="updated">—</strong></span></div>
         <div id="metrics" class="metrics"></div>
+        <article class="panel origin-panel"><h2>De onde vêm os leads?</h2><p>Origem da visita dos contatos recebidos no período. Cada contato é contado uma vez, mesmo quando conclui a qualificação.</p><div id="lead-origins"></div><p class="muted">Identificação por parâmetros de campanha (UTM) ou site de referência, quando disponíveis. Direto / sem referência também inclui acessos cuja origem o navegador não informou. Contatos anteriores à atualização aparecem sem origem registrada.</p></article>
         <section class="funnel-section">
           <h2>Onde os preenchimentos param?</h2>
           <p class="muted">O acompanhamento começa na primeira interação. Após 30 minutos sem atividade, uma tentativa incompleta é classificada como desistência.</p>
@@ -82,7 +83,7 @@
           <div class="table-toolbar">
             <div><h2>Leads recebidos</h2><p>Dados salvos durante o preenchimento e atualizados na conclusão.</p></div>
             <input id="search" aria-label="Buscar lead" placeholder="Buscar nome, empresa, e-mail ou telefone">
-            <select id="source" aria-label="Origem"><option value="all">Todas as origens</option><option value="form">Formulário</option><option value="chat">Chat</option></select>
+            <select id="source" aria-label="Canal de contato"><option value="all">Todos os canais</option><option value="form">Formulário</option><option value="chat">Chat</option></select>
           </div>
           <div class="table-scroll"><table><thead><tr><th>Contato</th><th>Empresa</th><th>Origem</th><th>Situação</th><th>Investimento</th><th>Recebido em</th><th></th></tr></thead><tbody id="lead-rows"></tbody></table></div>
           <p id="lead-count" class="muted"></p>
@@ -124,7 +125,8 @@
   <dialog id="user-dialog" class="account-dialog"><button type="button" class="close" data-close="user-dialog" aria-label="Fechar usuário">×</button><form id="user-form" class="account-form"><span class="eyebrow">ACESSO AO PAINEL</span><h2 id="user-dialog-title">Criar usuário</h2><label for="user-name">Nome</label><input id="user-name" maxlength="100" required><label for="user-username">Usuário</label><input id="user-username" pattern="[a-zA-Z0-9._@-]{3,100}" maxlength="100" autocomplete="off" required><label for="user-email">E-mail para recuperação</label><input id="user-email" type="email" maxlength="180" required><label for="user-role">Perfil de acesso</label><select id="user-role" required></select><div id="initial-password-wrap"><label for="user-password">Senha inicial</label><div class="password-row"><input id="user-password" type="password" minlength="12" maxlength="200" autocomplete="new-password"><button type="button" id="generate-password">Gerar</button></div><p class="muted">Guarde e compartilhe a senha com o usuário por um canal privado.</p></div><label class="checkbox-label"><input id="user-active" type="checkbox" checked> Conta ativa</label><p class="muted" id="user-edit-note" hidden>Salvar alterações encerra as sessões desse usuário. O dono não pode ser desativado nem rebaixado.</p><button class="primary">Salvar usuário</button><p id="user-message" role="alert"></p></form></dialog>
   <dialog id="recovery-dialog" class="account-dialog"><button type="button" class="close" data-close="recovery-dialog" aria-label="Fechar recuperação">×</button><form id="recovery-form" class="account-form"><span class="eyebrow">RECUPERAR ACESSO</span><h2>Esqueceu sua senha?</h2><p>Informe o e-mail da sua conta de acesso ao painel.</p><label for="recovery-email">E-mail cadastrado</label><input id="recovery-email" type="email" autocomplete="email" maxlength="180" required><button class="primary">Enviar instruções</button><p id="recovery-message" role="status"></p></form></dialog>
   <dialog id="reset-dialog" class="account-dialog"><button type="button" class="close" data-close="reset-dialog" aria-label="Fechar nova senha">×</button><form id="reset-form" class="account-form"><span class="eyebrow">RECUPERAÇÃO DE ACESSO</span><h2>Defina sua nova senha</h2><p>O link é pessoal, expira em 30 minutos e só pode ser usado uma vez.</p><label for="reset-password">Nova senha</label><input id="reset-password" type="password" minlength="12" maxlength="200" autocomplete="new-password" required><label for="reset-confirm">Confirme a senha</label><input id="reset-confirm" type="password" minlength="12" maxlength="200" autocomplete="new-password" required><button class="primary">Redefinir senha</button><p id="reset-message" role="status"></p></form></dialog>
-  <script src="/admin/admin.js?v=accounts-1"></script>
+  <script src="/attribution.js"></script>
+  <script src="/admin/admin.js?v=origins-1"></script>
   <script src="/admin/accounts-ui.js?v=accounts-1"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
 const accounts = require('./accounts.cjs');
+const attribution = require('./dist/attribution.js');
 
 const OFFICIAL_ORIGIN = 'https://motorize.agenciatupiniquim.com.br';
 
@@ -174,7 +175,15 @@ function createApp({ dataDir = process.env.DATA_DIR || path.join(__dirname, 'dat
             const abandoned = totals.abandoned || 0;
             return { source, started: totals.started, completed, abandoned, active: totals.active || 0, rate: completed + abandoned ? Math.round(abandoned / (completed + abandoned) * 1000) / 10 : null, stages };
           });
-          return send(200, { views, counts, daily, depth, days, funnel, abandonmentMinutes: 30 });
+          const origins = new Map();
+          for (const lead of db.prepare('SELECT data,status FROM leads WHERE created>=?').all(since)) {
+            const label = attribution.label(JSON.parse(lead.data).attribution);
+            const item = origins.get(label) || { label, total: 0, qualified: 0 };
+            item.total++;
+            if (lead.status === 'completed') item.qualified++;
+            origins.set(label, item);
+          }
+          return send(200, { views, counts, daily, depth, days, funnel, origins: [...origins.values()].sort((a, b) => b.total - a.total), abandonmentMinutes: 30 });
         }
         if (route === '/api/admin/leads') {
           const rows = db.prepare('SELECT id,source,status,data,created,updated FROM leads WHERE created>=? ORDER BY created DESC LIMIT 1000').all(since);
@@ -199,8 +208,10 @@ function createApp({ dataDir = process.env.DATA_DIR || path.join(__dirname, 'dat
         }
         let data;
         try { data = cleanLead(body.data, body.status === 'completed'); } catch (error) { return send(400, { error: error.message }); }
-        const existing = db.prepare('SELECT token,source,status FROM leads WHERE id=?').get(body.id);
+        const existing = db.prepare('SELECT token,source,status,data FROM leads WHERE id=?').get(body.id);
         if (existing && (existing.token !== hash(body.token) || existing.source !== body.source)) return send(403, { error: 'Contato não autorizado.' });
+        const savedOrigin = existing ? JSON.parse(existing.data).attribution : null;
+        data.attribution = savedOrigin || attribution.normalize(body.attribution);
         const now = new Date().toISOString();
         if (existing) {
           if (existing.status === 'completed' && body.status === 'started') return send(200, { ok: true });

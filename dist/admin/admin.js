@@ -78,6 +78,21 @@ async function load() {
 
 function renderDashboard(data) {
   renderFunnel(data.funnel || []);
+  $('#lead-origins').replaceChildren();
+  const origins = data.origins || [];
+  const totalOrigins = origins.reduce((sum, item) => sum + item.total, 0);
+  if (!origins.length) $('#lead-origins').append(el('p', 'As origens aparecerão conforme os contatos forem recebidos.', 'empty'));
+  origins.forEach((item) => {
+    const row = el('div', undefined, 'origin-row');
+    const heading = el('div', undefined, 'origin-heading');
+    heading.append(el('strong', item.label), el('span', `${item.total} contato(s) · ${Math.round(item.total / totalOrigins * 100)}%`));
+    const track = el('div', undefined, 'depth-track');
+    const fill = el('i');
+    fill.style.width = `${item.total / totalOrigins * 100}%`;
+    track.append(fill);
+    row.append(heading, track, el('small', `${item.qualified} com qualificação concluída`));
+    $('#lead-origins').append(row);
+  });
   const count = (source, status) => data.counts.filter((item) => (!source || item.source === source) && (!status || item.status === status)).reduce((sum, item) => sum + item.n, 0);
   const qualified = count(null, 'completed');
   const started = count();
@@ -144,7 +159,9 @@ function renderLeads() {
     const button = el('button', 'Ver detalhes');
     button.addEventListener('click', () => showLead(lead));
     action.append(button);
-    row.append(contact, el('td', lead.data.company || 'Ainda não informado'), el('td', lead.source === 'form' ? 'Formulário' : 'Chat'), status, el('td', lead.data.budget || 'Ainda não informado'), el('td', formatDate(lead.created)), action);
+    const origin = el('td');
+    origin.append(el('strong', motorizeAttribution.label(lead.data.attribution)), el('small', lead.source === 'form' ? 'Formulário' : 'Chat'));
+    row.append(contact, el('td', lead.data.company || 'Ainda não informado'), origin, status, el('td', lead.data.budget || 'Ainda não informado'), el('td', formatDate(lead.created)), action);
     $('#lead-rows').append(row);
   });
   if (!rows.length) {
@@ -162,9 +179,14 @@ function showLead(lead) {
   const data = lead.data;
   const fields = [
     ['Nome', data.name], ['E-mail', data.email], ['Telefone', data.phone], ['Empresa', data.company || 'Ainda não informada'],
-    ['Origem', lead.source === 'form' ? 'Formulário' : 'Chat'], ['Situação', lead.status === 'completed' ? 'Lead qualificado' : 'Contato iniciado'],
+    ['Origem da visita', motorizeAttribution.label(data.attribution)], ['Canal de contato', lead.source === 'form' ? 'Formulário' : 'Chat'], ['Situação', lead.status === 'completed' ? 'Lead qualificado' : 'Contato iniciado'],
     ['Recebido', formatDate(lead.created)], ['Última atualização', formatDate(lead.updated)]
   ];
+  if (data.attribution) {
+    for (const [key, label] of [['source', 'Fonte da campanha'], ['medium', 'Mídia'], ['campaign', 'Campanha'], ['content', 'Anúncio / conteúdo'], ['term', 'Termo'], ['referrer', 'Site de referência']]) {
+      if (data.attribution[key]) fields.push([label, data.attribution[key]]);
+    }
+  }
   if (lead.status === 'completed') fields.push(
     ['Cargo', data.role], ['Cidade/UF', data.city || 'Não informado'], ['Porte da operação', data.stores],
     ['Investimento em mídia', data.budget], ['Prioridade', data.challenge], ['Prazo para iniciar', data.timeline], ['Contexto adicional', data.details || 'Sem observações adicionais']

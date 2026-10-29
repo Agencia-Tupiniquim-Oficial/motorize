@@ -4,6 +4,20 @@
   const stages = { form: 'contact', chat: 'name' };
   const queues = {};
   const last = {};
+  // First entry in this tab is preserved through reloads and qualification steps.
+  let attribution;
+  try { attribution = JSON.parse(sessionStorage.getItem('motorize-attribution-v1') || 'null'); } catch (_) {}
+  if (!attribution) {
+    const params = new URLSearchParams(location.search);
+    let referrer = '';
+    try { const ref = new URL(document.referrer); if (ref.origin !== location.origin) referrer = ref.origin; } catch (_) {}
+    attribution = window.motorizeAttribution.normalize({
+      source: params.get('utm_source'), medium: params.get('utm_medium'), campaign: params.get('utm_campaign'),
+      content: params.get('utm_content'), term: params.get('utm_term'), referrer,
+      googleAds: params.has('gclid') || params.has('gbraid') || params.has('wbraid')
+    });
+    try { if (!preview) sessionStorage.setItem('motorize-attribution-v1', JSON.stringify(attribution)); } catch (_) {}
+  }
 
   const hexToken = () => Array.from(crypto.getRandomValues(new Uint8Array(32)), (byte) => byte.toString(16).padStart(2, '0')).join('');
   const saveAttempt = (source) => {
@@ -74,7 +88,7 @@
     try {
       response = await fetch('/api/leads', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...identity, source, status, data, attemptId: attempt.id, attemptToken: attempt.token })
+        body: JSON.stringify({ ...identity, source, status, data, attribution, attemptId: attempt.id, attemptToken: attempt.token })
       });
     } catch (_) {
       throw Error('Não conseguimos salvar agora. Confira sua conexão e tente novamente.');

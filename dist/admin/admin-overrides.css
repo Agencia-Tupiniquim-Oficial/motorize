@@ -1,2 +1,3 @@
 .brand::after{content:none}
 .brand>b{color:var(--gold)}
+.origin-panel{margin:24px 0}.origin-row{padding:16px 0;border-bottom:1px solid #e7e8eb}.origin-row:last-child{border-bottom:0}.origin-heading{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}.origin-row small{display:block;margin-top:8px;color:#64748b}.origin-heading strong{overflow-wrap:anywhere}

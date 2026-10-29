@@ -76,7 +76,7 @@ test('registra, qualifica e lista um lead com autenticação', async (t) => {
   assert.equal(response.status, 200);
   const identity = { id: crypto.randomUUID(), token: 'b'.repeat(64), source: 'form', attemptId: attempt.id, attemptToken: attempt.token };
   const started = { name: 'Ana', email: 'ana@grupo.com.br', phone: '(11) 99999-9999' };
-  response = await fetch(`${base}/api/leads`, { method: 'POST', headers, body: JSON.stringify({ ...identity, status: 'started', data: started }) });
+  response = await fetch(`${base}/api/leads`, { method: 'POST', headers, body: JSON.stringify({ ...identity, status: 'started', data: started, attribution: { source: 'google', medium: 'cpc', campaign: 'diagnostico', referrer: 'https://google.com/search?segredo=1' } }) });
   assert.equal(response.status, 200);
   const completed = { ...started, company: 'Grupo Avenida', role: 'Diretor(a)', city: 'Campinas, SP', stores: '2 a 5 lojas', budget: 'R$ 30 mil a R$ 80 mil', challenge: 'Gerar mais leads qualificados', timeline: 'Nos próximos 30 dias', details: 'Meta de expansão.' };
   response = await fetch(`${base}/api/leads`, { method: 'POST', headers, body: JSON.stringify({ ...identity, status: 'completed', data: completed }) });
@@ -90,6 +90,53 @@ test('registra, qualifica e lista um lead com autenticação', async (t) => {
   assert.equal(result.leads.length, 1);
   assert.equal(result.leads[0].data.company, 'Grupo Avenida');
   assert.equal(result.leads[0].status, 'completed');
+  assert.equal(result.leads[0].data.attribution.source, 'google', 'preserva origem ao completar sem reenviar atribuição');
+  assert.equal(result.leads[0].data.attribution.referrer, 'google.com', 'não salva caminho ou parâmetros de referência');
+  const dashboard = await (await fetch(`${base}/api/admin/dashboard?days=30`, { headers: { Cookie: cookie } })).json();
+  assert.deepEqual(dashboard.origins, [{ label: 'Google Ads', total: 1, qualified: 1 }]);
+});
+
+test('classifica origens sem inventar atribuição de registros antigos', () => {
+  const { normalize, label } = require('./dist/attribution.js');
+  assert.equal(label(null), 'Origem não registrada');
+  assert.equal(label(normalize({})), 'Direto / sem referência');
+  assert.equal(label(normalize({ referrer: 'https://www.google.com.br/search?q=x' })), 'Google · busca orgânica');
+  assert.equal(label(normalize({ referrer: 'https://google.com.evil.example' })), 'google.com.evil.example');
+  assert.equal(label(normalize({ source: 'instagram', medium: 'paid_social' })), 'Instagram · anúncio');
+  assert.equal(label(normalize({ googleAds: true })), 'Google Ads');
+  assert.equal(normalize({ referrer: 'javascript:alert(1)' }).referrer, '');
+  assert.equal(normalize({ campaign: 'x'.repeat(500) }).campaign.length, 160);
+  assert.deepEqual(normalize(normalize({ referrer: 'https://www.instagram.com/path?private=1' })), normalize({ referrer: 'https://www.instagram.com/' }), 'normalização do navegador e servidor preserva domínio');
+});
+
+test('captura origem no navegador e preserva após recarga antes de salvar formulário ou chat', async () => {
+  const vm = require('node:vm');
+  const storage = new Map();
+  const payloads = [];
+  function page(search, referrer) {
+    const context = {
+      URL, URLSearchParams, crypto: require('node:crypto').webcrypto,
+      location: { search, origin: 'https://motorize.agenciatupiniquim.com.br' },
+      document: { referrer, addEventListener() {} },
+      sessionStorage: { getItem: (key) => storage.get(key) || null, setItem: (key, value) => storage.set(key, value), removeItem: (key) => storage.delete(key) },
+      innerWidth: 1200, addEventListener() {}, setTimeout() {}, clearTimeout() {},
+      fetch: async (url, options) => { payloads.push({ url, body: JSON.parse(options.body) }); return { ok: true, json: async () => ({ ok: true }) }; }
+    };
+    context.window = context;
+    vm.createContext(context);
+    vm.runInContext(fs.readFileSync(path.join(__dirname, 'dist/attribution.js'), 'utf8'), context);
+    vm.runInContext(fs.readFileSync(path.join(__dirname, 'dist/capture.js'), 'utf8'), context);
+    return context;
+  }
+  const initial = page('?utm_source=instagram&utm_medium=paid_social&utm_campaign=oferta', 'https://instagram.com/path');
+  await initial.motorizeSave('form', 'started', {});
+  const reload = page('', 'https://motorize.agenciatupiniquim.com.br/');
+  await reload.motorizeSave('chat', 'started', {});
+  const saved = payloads.filter((item) => item.url === '/api/leads');
+  assert.equal(saved.length, 2);
+  assert.equal(saved[0].body.attribution.source, 'instagram');
+  assert.deepEqual(saved[0].body.attribution, saved[1].body.attribution);
+  assert.equal(saved[0].body.attribution.referrer, 'instagram.com');
 });
 
 test('rejeita qualificação B2B incompleta', async (t) => {
